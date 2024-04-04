@@ -12,12 +12,26 @@ class Item:
     name: str
     meaning: np.array
 
+@dc.dataclass
+class Population:
+    '''
+    Instead of items acting on individuals, they could act on populations.
+    Populations have a node location, a size, and a representation of current state.
+    Ideally, the needs match the meanings of items.
+    '''
+    id: int
+    location: any
+    needs_state: np.array 
+
 def item_similarity (i1: Item, i2: Item):
     '''
     INPUT: i1 and i2 are items
     RETURNS: cosine similarity (between -1, 1) of the meanings of the two items
+    ERROR: value_error if not same size
     SIDE-EFFECTS: none
     '''
+    if  np.size(i1.meaning) != np.size(i2.meaning):
+        raise ValueError("mismatch size")
     dot = np.dot(i1.meaning, i2.meaning)
     norms = np.linalg.norm(i1.meaning) * np.linalg.norm(i2.meaning)
     return dot / norms #cosine similarity
