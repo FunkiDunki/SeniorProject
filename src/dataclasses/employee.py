@@ -1,7 +1,5 @@
 import dataclasses as dc
 
-import numpy as np
-
 
 @dc.dataclass
 class Employee:
