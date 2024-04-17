@@ -1,6 +1,7 @@
 import dataclasses as dc
 import graph as g
 
+
 @dc.dataclass
 class World:
     """
@@ -8,5 +9,6 @@ class World:
     a list of locations as the vertices and a list of 
     travel routes as edges.
     """
-    
+
     map: g.Graph
+

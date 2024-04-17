@@ -2,6 +2,7 @@ import dataclasses as dc
 import location as l
 from typing import Tuple
 
+
 @dc.dataclass
 class TravelRoute:
     """
@@ -14,4 +15,5 @@ class TravelRoute:
     locations: Tuple[l.Location, l.Location]
     distance: float
     travel_type: str
+
     
