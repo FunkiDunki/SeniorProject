@@ -14,5 +14,5 @@ class Employee:
     salary: int  # how much does this employee earn in one year
     morale: float  # used to change efficiency
     tags: List[
-+       Tuple[str, int]
-+   ]  # the list of skill tags where each one has an efficiency modifier between 0 and 100
+        Tuple[str, int]
+    ]  # the list of skill tags where each one has an efficiency modifier between 0 and 100

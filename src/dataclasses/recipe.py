@@ -11,10 +11,10 @@ class Recipe:
     """
 
     ingredients: List[
-+       Tuple[int, int]
-+   ]  # a list of tuples where the first part is an item id and the second is the amount of that item
-+   timeRequired: List[
-+       Tuple[str, int]
-+   ]  # the tuples are an employee skill tag, and how long it would take that tag to complete the recipe
-+   outputID: int  # the id for the new item produced by the recipe
-+   outputAmt: int  # the amount of new items this recipe produces
+       Tuple[int, int]
+    ]  # a list of tuples where the first part is an item id and the second is the amount of that item
+    timeRequired: List[
+       Tuple[str, int]
+    ]  # the tuples are an employee skill tag, and how long it would take that tag to complete the recipe
+    outputID: int  # the id for the new item produced by the recipe
+    outputAmt: int  # the amount of new items this recipe produces
