@@ -21,7 +21,7 @@
 ### Before writing any code or editing README
 
 - check Trello board for any tasks that need to be started
-- create an issue on github for that task
+- create an issue on GitHub for that task
 - create a branch from the opened issue
 - open your code editor, and only work on this branch
 
