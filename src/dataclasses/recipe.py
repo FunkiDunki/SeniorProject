@@ -18,3 +18,4 @@ class Recipe:
     ]  # the tuples are an employee skill tag, and how long it would take that tag to complete the recipe
     outputID: int  # the id for the new item produced by the recipe
     outputAmt: int  # the amount of new items this recipe produces
+    
