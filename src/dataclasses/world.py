@@ -1,6 +1,8 @@
 import dataclasses as dc
+from typing import List
 
-import graph
+import location as lc
+import travel_route as tr
 
 
 @dc.dataclass
@@ -11,4 +13,5 @@ class World:
     travel routes as edges.
     """
 
-    map: graph.Graph
+    locations: List[lc.Location]
+    travel_routes: List[tr.TravelRoute]

@@ -13,5 +13,5 @@ class Location:
     """
 
     name: str
-    resources: List[any]
+    resources: List[int]
     native_people: population.Population
