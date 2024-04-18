@@ -11,4 +11,3 @@ class World:
     """
 
     map: g.Graph
-

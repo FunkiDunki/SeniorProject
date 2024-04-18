@@ -15,5 +15,3 @@ class TravelRoute:
     locations: Tuple[l.Location, l.Location]
     distance: float
     travel_type: str
-
-    
