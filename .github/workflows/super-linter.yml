@@ -21,6 +21,11 @@ jobs:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
+      - name: Autopep8 Format
+        run: |
+          pip install autopep8
+          autopep8 --recursive --in-place .
+
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
