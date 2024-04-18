@@ -1,6 +1,7 @@
 import dataclasses as dc
-import population
 from typing import List
+
+import population
 
 
 @dc.dataclass

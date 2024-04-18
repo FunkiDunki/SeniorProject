@@ -1,6 +1,7 @@
 import dataclasses as dc
-import location
 from typing import Tuple
+
+import location
 
 
 @dc.dataclass
