@@ -1,7 +1,6 @@
 import dataclasses as dc
 from typing import List
-
-import population
+import population as pl
 
 
 @dc.dataclass
@@ -14,4 +13,4 @@ class Location:
 
     name: str
     resources: List[int]
-    native_people: population.Population
+    native_people: pl.Population

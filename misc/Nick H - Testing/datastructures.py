@@ -1,6 +1,6 @@
 import dataclasses as dc
-
 import numpy as np
+from numpy import ndarray
 
 
 @dc.dataclass
@@ -13,20 +13,21 @@ class Item:
 
     id: int
     name: str
-    meaning: np.array
+    meaning: ndarray
 
 
 @dc.dataclass
 class Population:
     """
     Instead of items acting on individuals, they could act on populations.
-    Populations have a node location, a size, and a representation of current state.
+    Populations have a node location, a size,
+    and a representation of current state.
     Ideally, the needs match the meanings of items.
     """
 
     id: int
-    location: any
-    needs_state: np.array
+    location: int
+    needs_state: ndarray
 
 
 def item_similarity(i1: Item, i2: Item):

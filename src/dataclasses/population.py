@@ -1,6 +1,6 @@
 import dataclasses as dc
-
 import numpy as np
+from numpy import ndarray
 
 
 @dc.dataclass
@@ -11,7 +11,7 @@ class Population:
     """
 
     size: int  # size is count of population
-    needs_state: np.array
+    needs_state: ndarray
 
 
 def default_needs(len: int):
