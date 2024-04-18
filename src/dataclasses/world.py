@@ -1,5 +1,5 @@
 import dataclasses as dc
-import graph as g
+import graph
 
 
 @dc.dataclass
@@ -10,4 +10,4 @@ class World:
     travel routes as edges.
     """
 
-    map: g.Graph
+    map: graph.Graph

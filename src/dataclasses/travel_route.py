@@ -1,5 +1,5 @@
 import dataclasses as dc
-import location as l
+import location
 from typing import Tuple
 
 
@@ -12,6 +12,6 @@ class TravelRoute:
     to get from one to the other.
     """
 
-    locations: Tuple[l.Location, l.Location]
+    locations: Tuple[location.Location, location.Location]
     distance: float
     travel_type: str
