@@ -1,6 +1,5 @@
 import dataclasses as dc
 from typing import List
-
 import location as lc
 import travel_route as tr
 

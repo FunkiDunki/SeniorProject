@@ -1,7 +1,7 @@
 import dataclasses as dc
 from typing import Tuple
-
-import location
+import random
+import location as lc
 
 
 @dc.dataclass
@@ -13,6 +13,18 @@ class TravelRoute:
     to get from one to the other.
     """
 
-    locations: Tuple[location.Location, location.Location]
-    distance: float
+    locations: Tuple[lc.Location, lc.Location]
+    distance: int
     travel_type: str
+
+
+def random_travel_route(start: lc.Location, end: lc.Location) -> TravelRoute:
+    """
+    generates a random travel route between two given locations
+    """
+
+    locations = (start, end)
+    distance = random.randint(1, 100)
+    travel_type = random.choice(["land", "water", "air"])
+
+    return TravelRoute(locations, distance, travel_type)

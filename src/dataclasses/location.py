@@ -1,6 +1,6 @@
 import dataclasses as dc
 from typing import List
-
+from faker import Faker
 import population as pl
 
 
@@ -15,3 +15,11 @@ class Location:
     name: str
     resources: List[int]
     native_people: pl.Population
+
+
+def random_name() -> str:
+    """
+    generates a fake city name for a location
+    """
+    fake = Faker()
+    return fake.city()
