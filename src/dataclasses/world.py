@@ -1,8 +1,9 @@
 import dataclasses as dc
+import random
 from typing import List
+
 import location as lc
 import travel_route as tr
-import random
 
 
 @dc.dataclass
