@@ -15,15 +15,11 @@ class Recipe:
     a list of tuples where the first part is an item id and the second is
     the amount of that item
     """
-    ingredients: List[
-        Tuple[int, int]
-    ]
+    ingredients: List[Tuple[int, int]]
     """
     # the tuples are an employee skill tag, and how long it would take that
     tag to complete the recipe
     """
-    timeRequired: List[
-        Tuple[str, int]
-    ]  
+    timeRequired: List[Tuple[str, int]]
     outputID: int  # the id for the new item produced by the recipe
     outputAmt: int  # the amount of new items this recipe produces
