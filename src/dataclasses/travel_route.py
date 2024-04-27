@@ -2,6 +2,7 @@ import dataclasses as dc
 from typing import Tuple, List
 import random
 import location as lc
+import exceptions as ex
 
 
 @dc.dataclass
@@ -33,12 +34,15 @@ def random_travel_route(start: lc.Location, end: lc.Location) -> TravelRoute:
 def random_travel_routes(locations: List[lc.Location]) -> List[TravelRoute]:
     """
     Generates a random number of unique travel routes from the current location
-    to all locations to its left in the input list.
+    to all locations to its right in the input list.
     """
+
+    if len(locations) < 2:
+        raise ex.CustomError("locations should have length of 2 or more")
 
     travel_routes: List[TravelRoute] = []
 
-    for curr in range(len(locations)):
+    for curr in range(len(locations) - 1):
 
         origin = locations[curr]
         possible_destinations = locations[curr+1:].copy()

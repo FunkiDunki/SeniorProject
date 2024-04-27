@@ -22,7 +22,7 @@ def random_world() -> World:
     generates a random world
     """
 
-    locations = [lc.random_location() for _ in range(random.randint(1, 100))]
+    locations = [lc.random_location() for _ in range(random.randint(2, 100))]
     travel_routes = tr.random_travel_routes(locations)
 
     return World(locations, travel_routes)
