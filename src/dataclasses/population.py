@@ -1,5 +1,7 @@
 import dataclasses as dc
 
+import exceptions as ex
+import item as im
 import numpy as np
 from numpy import ndarray
 
@@ -34,3 +36,16 @@ def initialize_population(size: int) -> Population:
 
     pop = Population(size, default_needs(3))
     return pop
+
+
+def update_needs(pop: Population, item_purchased: im.Item) -> ndarray:
+    """
+    INPUT: a population pop, and an item purchased by pop
+    OUTPUT: ndarray representing updated needs_state of pop
+    SIDE EFFECTS: none
+    """
+
+    if len(pop.needs_state) != len(item_purchased.meaning):
+        ex.CustomError("needs state and item meaning must be same length")
+
+    return np.add(pop.needs_state, item_purchased.meaning)
