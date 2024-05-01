@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="Employees" src="project://database/Assets/UI%20Toolkit/Documents/Employees.uxml?fileID=9197481963319205126&amp;guid=63687042b8e42464f961768de5d1b4ef&amp;type=3#Employees" />
+    <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); height: 8%; flex-shrink: 0;">
+        <ui:Label tabindex="-1" text="Unicorn Blood" display-tooltip-when-elided="true" style="font-size: 36px; color: rgb(255, 255, 255); -unity-text-align: upper-center; width: 40%; align-items: stretch; align-self: center; background-color: rgba(0, 0, 0, 0.53); -unity-text-outline-color: rgb(255, 255, 255); -unity-text-outline-width: 0; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px;" />
+    </ui:VisualElement>
+    <ui:Instance template="Employees" name="Employees" />
+</ui:UXML>
