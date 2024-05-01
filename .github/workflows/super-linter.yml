@@ -13,6 +13,8 @@ on:
       - '**/src/unity_frontend/**'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - '**/src/unity_frontend/**'
 jobs:
   run-lint:
     runs-on: ubuntu-latest
