@@ -9,6 +9,8 @@ name: Lint Code Base
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'src/unity_frontend/**'
   pull_request:
     branches: [ "main" ]
 jobs:
