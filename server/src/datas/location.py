@@ -2,8 +2,9 @@ import dataclasses as dc
 import random
 from typing import List
 
-from . import population as pl
 from faker import Faker
+
+from . import population as pl
 
 
 @dc.dataclass

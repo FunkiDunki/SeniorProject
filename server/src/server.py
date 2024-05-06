@@ -3,9 +3,7 @@ from random import Random
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-
 from src.routers import employee_endpoints, world_graph_endpoints
-
 
 PORT = 11000
 HOST = "localhost"
@@ -15,6 +13,7 @@ app = FastAPI()
 
 app.include_router(employee_endpoints.router)
 app.include_router(world_graph_endpoints.router)
+
 
 class DataItem(BaseModel):
     age: int
@@ -39,4 +38,3 @@ async def hire_employee(name: str):
         "tags": ["worker", "metallist"],
     }
     return JSONResponse(content=new_employee, status_code=200)
-

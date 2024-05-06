@@ -1,9 +1,10 @@
 import dataclasses as dc
 
-from . import exceptions as ex
-from . import item as im
 import numpy as np
 from numpy import ndarray
+
+from . import exceptions as ex
+from . import item as im
 
 
 @dc.dataclass
