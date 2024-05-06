@@ -48,4 +48,10 @@ def update_needs(pop: Population, item_purchased: im.Item) -> ndarray:
     if len(pop.needs_state) != len(item_purchased.meaning):
         ex.CustomError("needs state and item meaning must be same length")
 
-    return np.add(pop.needs_state, item_purchased.meaning)
+    updated_needs: ndarray = np.zeros(len(pop.needs_state))
+
+    for i in range(0, len(pop.needs_state)):
+        delta = item_purchased.meaning[i] * (1 - pop.needs_state[i])
+        updated_needs[i] = min(1, delta + pop.needs_state[i])
+
+    return updated_needs
