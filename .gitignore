@@ -1,3 +1,7 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+## UNITY GITIGNORE STUFF:
 **/[Ll]ibrary/
 **/[Tt]emp/
 **/[Oo]bj/
