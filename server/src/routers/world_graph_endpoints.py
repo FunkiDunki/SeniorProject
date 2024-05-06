@@ -13,7 +13,9 @@ async def get_world_graph():
 
     fake_data = {
         "locations": {"length": len(fake_world.locations), "items": []},
-        "travel_routes": {"length": len(fake_world.travel_routes), "items": []},
+        "travel_routes": {
+            "length": len(fake_world.travel_routes), "items": []
+        },
     }
 
     response = JSONResponse(
