@@ -1,10 +1,7 @@
 import sqlalchemy
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
 from src import database as db
-
-from ..datas.world import random_world
 
 router = APIRouter(prefix="/world", tags=["world"])
 

@@ -29,7 +29,8 @@ class DataItem(BaseModel):
 async def get_data(item: DataItem):
     print("Received Data:", item.dict())
     return JSONResponse(
-        content={"age": 12, "name": "Data Recieved", "tags": ["worker", "metallist"]},
+        content={"age": 12, "name": "Data Recieved", "tags": [
+            "worker", "metallist"]},
         status_code=200,
     )
 
