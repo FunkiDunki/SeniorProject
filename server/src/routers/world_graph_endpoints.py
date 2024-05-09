@@ -2,6 +2,8 @@ import sqlalchemy
 from fastapi import APIRouter
 from sqlalchemy.exc import DBAPIError
 from src import database as db
+from typing import Optional
+from sqlalchemy.engine.result import Row
 
 router = APIRouter(prefix="/world", tags=["world"])
 
@@ -10,7 +12,7 @@ router = APIRouter(prefix="/world", tags=["world"])
 async def get_world_graph(id: int):
     try:
         with db.engine.begin() as connection:
-            result = connection.execute(
+            result: Optional[Row] = connection.execute(
                 sqlalchemy.text(
                     """
                     SELECT id, name
@@ -20,9 +22,19 @@ async def get_world_graph(id: int):
                 ),
                 {"wid": id},
             ).first()
-            return {
-                "world_id": result.id,
-                "world_name": result.name,
-            }
+
+            if result:
+
+                world_id: int = result.id
+                world_name: str = result.name
+
+                return {
+                    "world_id": world_id,
+                    "world_name": world_name,
+                }
+
+            else:
+                return None
+
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
