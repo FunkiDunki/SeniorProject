@@ -1,9 +1,10 @@
+from typing import Optional
+
 import sqlalchemy
 from fastapi import APIRouter
+from sqlalchemy.engine.result import Row
 from sqlalchemy.exc import DBAPIError
 from src import database as db
-from typing import Optional
-from sqlalchemy.engine.result import Row
 
 router = APIRouter(prefix="/world", tags=["world"])
 
@@ -24,15 +25,12 @@ async def get_world_graph(id: int):
             ).first()
 
             if result:
-
                 world_id: int = result.id
                 world_name: str = result.name
-
                 return {
                     "world_id": world_id,
                     "world_name": world_name,
                 }
-
             else:
                 return None
 

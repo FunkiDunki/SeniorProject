@@ -3,11 +3,8 @@ from random import Random
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from src.routers import (
-    employee_endpoints,
-    game_instance_endpoints,
-    world_graph_endpoints,
-)
+from src.routers import (employee_endpoints, game_instance_endpoints,
+                         world_graph_endpoints)
 
 PORT = 11000
 HOST = "localhost"
@@ -29,8 +26,7 @@ class DataItem(BaseModel):
 async def get_data(item: DataItem):
     print("Received Data:", item.dict())
     return JSONResponse(
-        content={"age": 12, "name": "Data Recieved", "tags": [
-            "worker", "metallist"]},
+        content={"age": 12, "name": "Data Recieved", "tags": ["worker", "metallist"]},
         status_code=200,
     )
 
