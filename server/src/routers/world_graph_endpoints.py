@@ -15,7 +15,7 @@ async def get_world_graph(id: int):
                     """
                     SELECT id, name
                     FROM worlds
-                    WHERE :wid = 1
+                    WHERE id = :wid
                     """
                 ),
                 {"wid": id},
