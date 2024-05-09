@@ -1,23 +1,38 @@
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from typing import Optional
 
-from ..datas.world import random_world
+import sqlalchemy
+from fastapi import APIRouter
+from sqlalchemy.engine.result import Row
+from sqlalchemy.exc import DBAPIError
+from src import database as db
 
 router = APIRouter(prefix="/world", tags=["world"])
 
 
-@router.get("/")
-async def get_world_graph():
+@router.get("/{id}")
+async def get_world_graph(id: int):
+    try:
+        with db.engine.begin() as connection:
+            result: Optional[Row] = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT id, name
+                    FROM worlds
+                    WHERE id = :wid
+                    """
+                ),
+                {"wid": id},
+            ).first()
 
-    fake_world = random_world()
+            if result:
+                world_id: int = result.id
+                world_name: str = result.name
+                return {
+                    "world_id": world_id,
+                    "world_name": world_name,
+                }
+            else:
+                return None
 
-    fake_data = {
-        "locations": {"length": len(fake_world.locations), "items": []},
-        "travel_routes": {"length": len(fake_world.travel_routes), "items": []},
-    }
-
-    response = JSONResponse(
-        content=fake_data,
-        status_code=200,
-    )
-    return response
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")

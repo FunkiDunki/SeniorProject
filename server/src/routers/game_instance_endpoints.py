@@ -18,9 +18,13 @@ async def post_game_insta(name: str):
                 ),
                 {"world_name": name},
             ).scalar()
-            return {
-                "game_instance_id": result,
-                "game_instance_name": name,
-            }
+
+            if result:
+                return {
+                    "game_instance_id": result,
+                    "game_instance_name": name,
+                }
+            else:
+                return None
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
