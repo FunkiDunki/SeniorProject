@@ -1,5 +1,7 @@
 import dataclasses as dc
 from typing import List, Tuple
+from faker import Faker
+import random
 
 
 @dc.dataclass
@@ -18,3 +20,13 @@ class Employee:
     efficiency modifier between 0 and 100
     """
     tags: List[Tuple[str, int]]
+
+
+def rand_employee() -> Employee:
+    faker = Faker()
+
+    name = faker.name()
+    salary = random.randint(1, 1000)
+    morale = random.uniform(1.0, 100.0)
+
+    return Employee(name, salary, morale, [])
