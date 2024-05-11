@@ -1,9 +1,8 @@
 import sqlalchemy
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
 from src import database as db
-from src.datas import employee
+from src.datas import employee as em
 
 router = APIRouter(
     prefix="/employees",
@@ -20,19 +19,30 @@ fake_db = [
 
 @router.get("/")
 async def get_all_employees():
-
-    response = JSONResponse(
-        content=fake_db,
-        status_code=200,
-    )
-    return response
+    try:
+        with db.engine.begin() as connection:
+            result = connection.execute(
+                sqlalchemy.text(
+                    """SELECT name
+                        FROM employees"""
+                )
+            ).all()
+        employees = []
+        if result:
+            for row in result:
+                employees.append({"name": row.name})
+            return employees
+        else:
+            return None
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
 
 
 @router.post("/")
 async def post_hire_employee():
     try:
         with db.engine.begin() as connection:
-            new_employee = employee.rand_employee()
+            new_employee = em.rand_employee()
             connection.execute(
                 sqlalchemy.text(
                     """INSERT into employees (name, salary, morale)
