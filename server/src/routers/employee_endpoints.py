@@ -30,7 +30,7 @@ async def get_all_employees():
         employees = []
         if result:
             for row in result:
-                employees.append({'name': row.name})
+                employees.append({"name": row.name})
             return employees
         else:
             return None
