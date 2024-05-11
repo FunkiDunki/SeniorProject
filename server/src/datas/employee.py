@@ -1,7 +1,8 @@
 import dataclasses as dc
-from typing import List, Tuple
-from faker import Faker
 import random
+from typing import List, Tuple
+
+from faker import Faker
 
 
 @dc.dataclass

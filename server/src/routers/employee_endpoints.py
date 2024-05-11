@@ -1,5 +1,9 @@
+import sqlalchemy
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import DBAPIError
+from src import database as db
+from src.datas import employee
 
 router = APIRouter(
     prefix="/employees",
@@ -22,3 +26,28 @@ async def get_all_employees():
         status_code=200,
     )
     return response
+
+
+@router.post("/")
+async def post_hire_employee():
+    try:
+        with db.engine.begin() as connection:
+            new_employee = employee.rand_employee()
+            connection.execute(
+                sqlalchemy.text(
+                    """INSERT into employees (name, salary, morale)
+                        VALUES (:name, :salary, :morale)"""
+                ),
+                {
+                    "name": new_employee.name,
+                    "salary": new_employee.salary,
+                    "morale": new_employee.morale,
+                },
+            )
+            return {
+                "employee_hired": new_employee.name,
+                "salary": new_employee.salary,
+                "morale": new_employee.morale,
+            }
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")

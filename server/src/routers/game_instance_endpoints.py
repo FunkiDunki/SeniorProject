@@ -13,8 +13,8 @@ async def post_game_insta(name: str):
             result = connection.execute(
                 sqlalchemy.text(
                     """INSERT INTO game_instances (name)
-                                VALUES (:world_name)
-                                RETURNING id"""
+                        VALUES (:world_name)
+                        RETURNING id"""
                 ),
                 {"world_name": name},
             ).scalar()
