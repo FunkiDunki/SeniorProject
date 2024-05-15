@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from sqlalchemy.exc import DBAPIError
 from src import database as db
 from src.datas import employee as em
+from fastapi.responses import JSONResponse
 
 router = APIRouter(
     prefix="/employees",
@@ -17,23 +18,34 @@ fake_db = [
 ]
 
 
-@router.get("/")
-async def get_all_employees():
+@router.get("/{game_instance}")
+async def get_all_employees(game_instance: int):
     try:
         with db.engine.begin() as connection:
             result = connection.execute(
                 sqlalchemy.text(
                     """SELECT name
-                        FROM employees"""
-                )
+                        FROM employees
+                        WHERE game_id = :gid"""
+                ),
+                {
+                    "gid": game_instance
+                }
             ).all()
         employees = []
         if result:
             for row in result:
                 employees.append({"name": row.name})
-            return employees
+            response = JSONResponse(
+                content=employees,
+                status_code=200,
+            )
+            return response
         else:
-            return None
+            return JSONResponse(
+                content=None,
+                status_code=404,
+            )
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
