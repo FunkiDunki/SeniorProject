@@ -1,9 +1,9 @@
 import sqlalchemy
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
 from src import database as db
 from src.datas import employee as em
-from fastapi.responses import JSONResponse
 
 router = APIRouter(
     prefix="/employees",
@@ -28,9 +28,7 @@ async def get_all_employees(game_instance: int):
                         FROM employees
                         WHERE game_id = :gid"""
                 ),
-                {
-                    "gid": game_instance
-                }
+                {"gid": game_instance},
             ).all()
         employees = []
         if result:
