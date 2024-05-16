@@ -27,8 +27,9 @@ public class UIListScript : MonoBehaviour
 
         employeesList.bindItem = (element, i) => {
             var itemData = items[i];
-            element.Q<Label>("Name").text = itemData.Title;
-            element.Q<IntegerField>("AgeField").value = itemData.age;
+            element.Q<Label>("Name").text = itemData.name;
+            element.Q<FloatField>("SalaryField").value = itemData.salary;
+            element.Q<FloatField>("MoraleField").value = itemData.morale;
             Button removeButton = element.Q<Button>("FireButton");
             removeButton.clickable.clicked += () => RemoveItem(i);
         };
@@ -39,13 +40,20 @@ public class UIListScript : MonoBehaviour
 
     public class ItemData
     {
-        public string Title { get; set; }
-        public int age { get; set; }
+        public string name { get; set; }
+        public float salary { get; set; }
+        public float morale { get; set; }
     }
 
     public void AddItem(ItemData newItem)
     {
         items.Add(newItem);
+        employeesList.Rebuild();
+    }
+
+    public void RefreshItems(List<ItemData> newItems)
+    {
+        items = newItems;
         employeesList.Rebuild();
     }
 

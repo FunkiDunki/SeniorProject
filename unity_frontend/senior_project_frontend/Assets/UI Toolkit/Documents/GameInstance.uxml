@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="GameInstance" style="flex-grow: 1; background-color: rgba(253, 253, 253, 0.53); flex-direction: row; align-items: center; align-self: center; flex-shrink: 0; width: 100%; height: 100%; justify-content: center;">
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-shrink: 0;">
+            <ui:TextField picking-mode="Ignore" label="Game Name&#10;" value="PutNameHere" name="GameNameField" style="flex-direction: row;" />
+            <ui:IntegerField label="Game Id" value="0" name="GameId" is-delayed="false" readonly="true" />
+        </ui:VisualElement>
+        <ui:Button text="Create Game" display-tooltip-when-elided="true" name="NewInstanceButton" style="width: 35%; height: 60%;" />
+    </ui:VisualElement>
+</ui:UXML>

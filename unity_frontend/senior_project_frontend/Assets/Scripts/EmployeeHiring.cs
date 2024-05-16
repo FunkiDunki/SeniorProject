@@ -11,8 +11,9 @@ public class EmployeeHiring : MonoBehaviour
     [Serializable]
     public class EmployeePacket
     {
-        public int age;
         public string name;
+        public float salary;
+        public float morale;
         public string[] tags;
 
         public static EmployeePacket CreateFromJson(string jsonString)
@@ -21,7 +22,6 @@ public class EmployeeHiring : MonoBehaviour
         }
     }
 
-    public HttpManager manager;
     public UIListScript employeeList;
 
     // Start is called before the first frame update
@@ -32,15 +32,16 @@ public class EmployeeHiring : MonoBehaviour
 
     void AttemptToHire()
     {
-        StartCoroutine(HttpManager.PostRequest(new { }, "http://localhost:11000/hire/alice", WeGotAnEmployee));
+        string url = HttpManager.EndpointToUrl("/employees", HttpManager.manager.host, HttpManager.manager.port);
+        StartCoroutine(HttpManager.PostRequest(new { }, url, WeGotAnEmployee));
     }
 
     void WeGotAnEmployee(string text)
     {
         print(text);
-        manager.CubeIt(text);
+        HttpManager.manager.CubeIt(text);
         EmployeePacket employee = EmployeePacket.CreateFromJson(text);
-        UIListScript.ItemData data = new UIListScript.ItemData { Title = employee.name, age = employee.age };
+        UIListScript.ItemData data = new UIListScript.ItemData { name= employee.name, salary= employee.salary, morale = employee.morale};
         employeeList.AddItem(data);
     }
     // Update is called once per frame

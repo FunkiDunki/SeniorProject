@@ -11,6 +11,11 @@ public class HttpManager : MonoBehaviour
     public TMP_Text cubetext;
     public Animator cubeAnimator;
 
+    public string host;
+    public int port;
+
+    public static HttpManager manager;
+
     [Serializable]
     public class ExamplePacket
     {
@@ -24,10 +29,26 @@ public class HttpManager : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        if (manager == null)
+        {
+            manager = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
-        //StartCoroutine(PostRequest(new Packet { name = "hi", age = 10, tags = { } },"http://localhost:11000/data", CubeIt));
+
+    }
+    
+    public static string EndpointToUrl(string endpoint, string host, int port)
+    {
+        return "http://" + host + ":" + port + endpoint;
     }
 
     public void CubeIt(string wisdom)
@@ -36,6 +57,7 @@ public class HttpManager : MonoBehaviour
         cubeAnimator.SetTrigger("Speak");
         cubetext.text = wisdom;
     }
+
 
     public static IEnumerator PostRequest(object data, string url, Action<string> onSuccess)
     {
