@@ -54,6 +54,7 @@ public class UIListScript : MonoBehaviour
     public void RefreshItems(List<ItemData> newItems)
     {
         items = newItems;
+        employeesList.itemsSource = items;
         employeesList.Rebuild();
     }
 
