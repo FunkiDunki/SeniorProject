@@ -369,6 +369,7 @@ GameObject:
   - component: {fileID: 195380056}
   - component: {fileID: 195380058}
   - component: {fileID: 195380059}
+  - component: {fileID: 195380060}
   m_Layer: 5
   m_Name: UIDocument
   m_TagString: Untagged
@@ -433,8 +434,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1051cd107b0be4b9718bb871e40f5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 1893522368}
   employeeList: {fileID: 195380058}
+--- !u!114 &195380060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195380055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebe7e1d44d280e54fa9f4b7f24cb621c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  document: {fileID: 195380056}
 --- !u!1 &201282178
 GameObject:
   m_ObjectHideFlags: 0
@@ -1981,6 +1994,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cubetext: {fileID: 1480320132}
   cubeAnimator: {fileID: 1411402310}
+  host: localhost
+  port: 11000
 --- !u!1 &6233603087924075300
 GameObject:
   m_ObjectHideFlags: 0
