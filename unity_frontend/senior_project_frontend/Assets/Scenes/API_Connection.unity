@@ -447,6 +447,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe7e1d44d280e54fa9f4b7f24cb621c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onlineSprite: {fileID: 21300000, guid: 469aca044aa99aa4fb17f241ae0e7ce1, type: 3}
+  offlineSprite: {fileID: 21300000, guid: ce04473300f353e44a823d921ebb1e61, type: 3}
   document: {fileID: 195380056}
 --- !u!1 &201282178
 GameObject:
