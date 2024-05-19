@@ -8,6 +8,12 @@ public class GameInstanceScript : MonoBehaviour
 {
     public static bool hasInstance;
     public static int instanceId;
+
+    [SerializeField]
+    Sprite onlineSprite;
+    [SerializeField]
+    Sprite offlineSprite;
+
     [Serializable]
     public class GameInstancePacket
     {
@@ -34,6 +40,7 @@ public class GameInstanceScript : MonoBehaviour
         hasInstance = false;
         gameInstanceSegment = document.rootVisualElement.Q<VisualElement>("GameInstance");
         gameInstanceSegment.Q<Button>("NewInstanceButton").clickable.clicked += AttemptInstance;
+        gameInstanceSegment.Q<VisualElement>("ConnectionIndicator").style.backgroundImage = new StyleBackground(offlineSprite);
     }
 
     void AttemptInstance()
@@ -56,5 +63,6 @@ public class GameInstanceScript : MonoBehaviour
         gameInstanceSegment.Q<IntegerField>("GameId").value = inst.game_instance_id;
         hasInstance = true;
         instanceId = inst.game_instance_id;
+        gameInstanceSegment.Q<VisualElement>("ConnectionIndicator").style.backgroundImage = new StyleBackground(onlineSprite);
     }
 }
