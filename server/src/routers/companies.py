@@ -19,7 +19,7 @@ async def get_company_info(comp_id: int):
             result = connection.execute(
                 sqlalchemy.text(
                     """SELECT name
-                        FROM companies 
+                        FROM companies
                         WHERE id = :cid"""
                 ),
                 {"cid": comp_id},
