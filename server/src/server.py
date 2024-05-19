@@ -7,6 +7,7 @@ from src.routers import (
     employee_endpoints,
     game_instance_endpoints,
     world_graph_endpoints,
+    companies
 )
 
 PORT = 11000
@@ -18,6 +19,7 @@ app = FastAPI()
 app.include_router(employee_endpoints.router)
 app.include_router(world_graph_endpoints.router)
 app.include_router(game_instance_endpoints.router)
+app.include_router(companies.router)
 
 
 class DataItem(BaseModel):
