@@ -1,9 +1,9 @@
 import sqlalchemy
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy.exc import DBAPIError
 from src import database as db
-from pydantic import BaseModel
 
 router = APIRouter(
     prefix="/companies",
@@ -26,10 +26,7 @@ async def get_company_info(comp_id: int):
             ).first()
         if result:
             response = JSONResponse(
-                content={
-                    "name": result.name,
-                    "id": comp_id
-                },
+                content={"name": result.name, "id": comp_id},
                 status_code=200,
             )
             return response
@@ -42,14 +39,14 @@ async def get_company_info(comp_id: int):
         print(f"Error returned: <<<{error}>>>")
 
 
-
 class Company(BaseModel):
     name: str
+
 
 @router.post("/{inst_id}")
 async def post_hire_employee(inst_id: int, company: Company):
     try:
-        #create new company:
+        # create new company:
         with db.engine.begin() as connection:
             result = connection.execute(
                 sqlalchemy.text(
@@ -57,18 +54,11 @@ async def post_hire_employee(inst_id: int, company: Company):
                         VALUES (:name, :g_id)
                         RETURNING id"""
                 ),
-                {
-                    "name": company.name,
-                    "g_id": inst_id
-                },
+                {"name": company.name, "g_id": inst_id},
             ).first()
-            comp_info = {
-                "name": company.name,
-                "id": result.id,
-                "instance_id": inst_id
-            }
+            comp_info = {"name": company.name, "id": result.id, "instance_id": inst_id}
 
-            #add 20 gold to inventory:
+            # add 20 gold to inventory:
             change = 20
             connection.execute(
                 sqlalchemy.text(
@@ -79,13 +69,10 @@ async def post_hire_employee(inst_id: int, company: Company):
                         (SELECT id FROM items WHERE name = 'GOLD'),
                         :change)"""
                 ),
-                {
-                    "cid": comp_info["id"],
-                    "change": change
-                }
+                {"cid": comp_info["id"], "change": change},
             )
 
-            #return company information if we make it here
+            # return company information if we make it here
             return comp_info
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
