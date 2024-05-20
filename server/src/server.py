@@ -3,6 +3,7 @@ from random import Random
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+
 from src.routers import (
     companies,
     employee_endpoints,

@@ -4,6 +4,7 @@ import sqlalchemy
 from fastapi import APIRouter
 from sqlalchemy.engine.result import Row
 from sqlalchemy.exc import DBAPIError
+
 from src import database as db
 
 router = APIRouter(prefix="/world", tags=["world"])

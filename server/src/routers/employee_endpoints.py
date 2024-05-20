@@ -2,6 +2,7 @@ import sqlalchemy
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
+
 from src import database as db
 from src.datas import employee as em
 
