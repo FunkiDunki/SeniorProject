@@ -18,15 +18,32 @@ async def get_company_info(comp_id: int):
         with db.engine.begin() as connection:
             result = connection.execute(
                 sqlalchemy.text(
-                    """SELECT name
-                        FROM companies
+                    """WITH valued AS (
+                        SELECT companies.name as name,
+                          companies.id as id,
+                          companies.game_instance as game_instance,
+                          SUM(change) as value
+                          FROM companies JOIN item_ledger
+                          ON companies.id = item_ledger.company_id
+                          JOIN items
+                          ON item_ledger.item_id = items.id
+                          WHERE items.name = 'GOLD'
+                          GROUP BY companies.name, companies.id, companies.game_instance
+                        )
+                        SELECT name, id, value
+                        FROM valued
                         WHERE id = :cid"""
                 ),
                 {"cid": comp_id},
             ).first()
         if result:
+            result = {
+                "name": result.name,
+                "id": result.id,
+                "value": result.value,
+            }
             response = JSONResponse(
-                content={"name": result.name, "id": comp_id},
+                content=result,
                 status_code=200,
             )
             return response
