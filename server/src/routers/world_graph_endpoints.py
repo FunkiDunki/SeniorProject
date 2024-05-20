@@ -1,4 +1,5 @@
 from typing import Optional
+
 import sqlalchemy
 from fastapi import APIRouter
 from sqlalchemy.engine.result import Row
