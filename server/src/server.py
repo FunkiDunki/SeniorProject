@@ -7,7 +7,7 @@ from src.routers import (
     companies,
     employee_endpoints,
     game_instance_endpoints,
-    world_graph_endpoints
+    world_graph_endpoints,
 )
 
 PORT = 11000
