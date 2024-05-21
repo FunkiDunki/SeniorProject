@@ -48,26 +48,40 @@ async def get_all_employees(game_instance: int):
         print(f"Error returned: <<<{error}>>>")
 
 
-@router.post("/")
-async def post_hire_employee():
+@router.post("/{game_instance}")
+async def post_hire_employee(game_instance: int):
     try:
         with db.engine.begin() as connection:
             new_employee = em.rand_employee()
-            connection.execute(
+            result = connection.execute(
                 sqlalchemy.text(
-                    """INSERT into employees (name, salary, morale)
-                        VALUES (:name, :salary, :morale)"""
+                    """INSERT into employees (game_id, name, salary, morale)
+                        VALUES (:game_id, :name, :salary, :morale)
+                        RETURNING id"""
                 ),
                 {
+                    "game_id": game_instance,
                     "name": new_employee.name,
                     "salary": new_employee.salary,
                     "morale": new_employee.morale,
                 },
-            )
-            return {
-                "employee_hired": new_employee.name,
-                "salary": new_employee.salary,
-                "morale": new_employee.morale,
-            }
+            ).scalar()
+
+            if result:
+                return JSONResponse(
+                    content={
+                        "id": result,
+                        "name": new_employee.name,
+                        "salary": new_employee.salary,
+                        "morale": new_employee.morale,
+                    },
+                    status_code=200,
+                )
+            else:
+                return JSONResponse(
+                    content=f"game id {game_instance} not found",
+                    status_code=404,
+                )
+
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
