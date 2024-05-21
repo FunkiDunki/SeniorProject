@@ -8,7 +8,7 @@ router = APIRouter(prefix="/game", tags=["game"])
 
 
 @router.post("/{name}")
-async def post_game_insta(name: str):
+async def post_game_instance(name: str):
     try:
         with db.engine.begin() as connection:
             result = connection.execute(
@@ -21,12 +21,19 @@ async def post_game_insta(name: str):
             ).scalar()
 
             if result:
-                return {
-                    "game_instance_id": result,
-                    "game_instance_name": name,
-                }
+                response = JSONResponse(
+                    content={
+                        "game_instance_id": result,
+                        "game_instance_name": name,
+                    },
+                    status_code=200,
+                )
+                return response
             else:
-                return None
+                return JSONResponse(
+                    content=None,
+                    status_code=404,
+                )
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
