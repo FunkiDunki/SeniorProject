@@ -61,7 +61,7 @@ class Company(BaseModel):
 
 
 @router.post("/{inst_id}")
-async def post_hire_employee(inst_id: int, company: Company):
+async def post_new_company(inst_id: int, company: Company):
     try:
         # create new company:
         with db.engine.begin() as connection:
