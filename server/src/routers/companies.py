@@ -21,14 +21,14 @@ async def get_company_info(comp_id: int):
                     """WITH valued AS (
                         SELECT companies.name as name,
                           companies.id as id,
-                          companies.game_instance as game_instance,
+                          companies.game as game_instance,
                           SUM(change) as value
                           FROM companies JOIN item_ledger
                           ON companies.id = item_ledger.company_id
                           JOIN items
                           ON item_ledger.item_id = items.id
                           WHERE items.name = 'GOLD'
-                          GROUP BY companies.name, companies.id, companies.game_instance
+                          GROUP BY companies.name, companies.id, companies.game
                         )
                         SELECT name, id, value
                         FROM valued

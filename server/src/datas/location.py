@@ -29,6 +29,14 @@ def random_name() -> str:
     return fake.city()
 
 
+def test_location() -> Location:
+    name = random_name()
+    resources = [1, 0, 1]
+    native_people = pl.initialize_population(2)
+
+    return Location(name, resources, native_people)
+
+
 def random_location() -> Location:
     """
     generates a random location
