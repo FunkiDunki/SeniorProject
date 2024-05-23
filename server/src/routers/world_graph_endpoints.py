@@ -1,11 +1,12 @@
 from typing import Optional
-from src.datas import world as wd
+
 import sqlalchemy
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy.engine.result import Row
 from sqlalchemy.exc import DBAPIError
 from src import database as db
+from src.datas import world as wd
 
 router = APIRouter(prefix="/world", tags=["world"])
 
@@ -70,7 +71,7 @@ async def post_create_world(game: int, name: str):
                     "game": game,
                     "name": name,
                     "graph": graph,
-                }
+                },
             ).scalar()
 
             if result:
@@ -81,7 +82,7 @@ async def post_create_world(game: int, name: str):
                         "name": name,
                         "graph": graph,
                     },
-                    status_code=200
+                    status_code=200,
                 )
 
                 return response

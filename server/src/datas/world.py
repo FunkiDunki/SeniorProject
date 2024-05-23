@@ -1,6 +1,6 @@
 import dataclasses as dc
-import random
 import json
+import random
 from typing import List
 
 from . import location as lc
@@ -50,7 +50,10 @@ def world_to_JSON(world: World) -> str:
     world_graph = {
         "name": world.name,
         "locations": [location.name for location in world.locations],
-        "travel_routes": [[route.locations[0].name, route.locations[1].name] for route in world.travel_routes]
+        "travel_routes": [
+            [route.locations[0].name, route.locations[1].name]
+            for route in world.travel_routes
+        ],
     }
 
     return json.dumps(world_graph)
