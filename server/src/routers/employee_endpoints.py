@@ -26,7 +26,7 @@ async def get_all_employees(game_instance: int):
                 sqlalchemy.text(
                     """SELECT name
                         FROM employees
-                        WHERE game_id = :gid"""
+                        WHERE game = :gid"""
                 ),
                 {"gid": game_instance},
             ).all()
@@ -55,7 +55,7 @@ async def post_hire_employee(game_instance: int):
             new_employee = em.rand_employee()
             result = connection.execute(
                 sqlalchemy.text(
-                    """INSERT into employees (game_id, name, salary, morale)
+                    """INSERT INTO employees (game, name, salary, morale)
                         VALUES (:game_id, :name, :salary, :morale)
                         RETURNING id"""
                 ),

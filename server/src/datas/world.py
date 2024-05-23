@@ -1,5 +1,6 @@
 import dataclasses as dc
 import random
+import json
 from typing import List
 
 from . import location as lc
@@ -14,11 +15,12 @@ class World:
     travel routes as edges.
     """
 
+    name: str
     locations: List[lc.Location]
     travel_routes: List[tr.TravelRoute]
 
 
-def random_world() -> World:
+def random_world(name: str) -> World:
     """
     generates a random world
     """
@@ -26,4 +28,29 @@ def random_world() -> World:
     locations = [lc.random_location() for _ in range(random.randint(2, 100))]
     travel_routes = tr.random_travel_routes(locations)
 
-    return World(locations, travel_routes)
+    return World(name, locations, travel_routes)
+
+
+def test_world(name: str) -> World:
+    """
+    Test world that is small and simple to test endpoints
+    """
+
+    l1 = lc.test_location()
+    l2 = lc.test_location()
+    locations = [l1, l2]
+
+    travel_routes = [tr.random_travel_route(l1, l2)]
+
+    return World(name, locations, travel_routes)
+
+
+def world_to_JSON(world: World) -> str:
+
+    world_graph = {
+        "name": world.name,
+        "locations": [location.name for location in world.locations],
+        "travel_routes": [[route.locations[0].name, route.locations[1].name] for route in world.travel_routes]
+    }
+
+    return json.dumps(world_graph)
