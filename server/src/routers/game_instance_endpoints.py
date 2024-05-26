@@ -3,37 +3,51 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
 from src import database as db
+from src.datas import world as wd
+
 
 router = APIRouter(prefix="/game", tags=["game"])
 
 
 @router.post("/{name}")
-async def post_game_instance(name: str):
+async def post_create_game_instance(name: str):
     try:
         with db.engine.begin() as connection:
-            result = connection.execute(
+            # add a game instance to the games table
+            game_id = connection.execute(
                 sqlalchemy.text(
-                    """INSERT INTO game_instances (name)
-                        VALUES (:world_name)
-                        RETURNING id"""
-                ),
-                {"world_name": name},
+                    """
+                    INSERT INTO games (name)
+                    VALUES (:name)
+                    RETURNING id
+                    """
+                ), {"name": name}
             ).scalar()
 
-            if result:
-                response = JSONResponse(
-                    content={
-                        "game_instance_id": result,
-                        "game_instance_name": name,
-                    },
-                    status_code=200,
-                )
-                return response
+            if game_id:
+                # create a world
+                new_world = wd.test_world(name + " world")
+                # add the world to the worlds table
+                world_id = connection.execute(
+                    sqlalchemy.text(
+                        """
+                        INSERT INTO worlds (game, name)
+                        VALUES (:game, :world_name)
+                        RETURNING id
+                        """
+                    ),
+                    {
+                        "game": game_id,
+                        "world_name": new_world.name,
+                    }
+                ).scalar()
+
             else:
                 return JSONResponse(
                     content=None,
                     status_code=404,
                 )
+
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
