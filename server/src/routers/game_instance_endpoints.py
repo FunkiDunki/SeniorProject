@@ -5,7 +5,6 @@ from sqlalchemy.exc import DBAPIError
 from src import database as db
 from src.datas import world as wd
 
-
 router = APIRouter(prefix="/game", tags=["game"])
 
 
@@ -21,7 +20,8 @@ async def post_create_game_instance(name: str):
                     VALUES (:name)
                     RETURNING id
                     """
-                ), {"name": name}
+                ),
+                {"name": name},
             ).scalar()
 
             if game_id:
@@ -39,7 +39,7 @@ async def post_create_game_instance(name: str):
                     {
                         "game": game_id,
                         "world_name": new_world.name,
-                    }
+                    },
                 ).scalar()
 
                 if world_id:
@@ -56,7 +56,7 @@ async def post_create_game_instance(name: str):
                                 "loc_name": loc.name,
                             }
                             for loc in new_world.locations
-                        ]
+                        ],
                     )
 
                     connection.execute(
@@ -73,7 +73,7 @@ async def post_create_game_instance(name: str):
                                 "destination": route.destination.name,
                             }
                             for route in new_world.travel_routes
-                        ]
+                        ],
                     )
 
                     return JSONResponse(
