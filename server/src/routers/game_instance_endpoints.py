@@ -42,9 +42,54 @@ async def post_create_game_instance(name: str):
                     }
                 ).scalar()
 
+                if world_id:
+                    connection.execute(
+                        sqlalchemy.text(
+                            """
+                            INSERT INTO locations (world, name)
+                            VALUES (:world, :loc_name)
+                            """
+                        ),
+                        [
+                            {
+                                "world": world_id,
+                                "loc_name": loc.name,
+                            }
+                            for loc in new_world.locations
+                        ]
+                    )
+
+                    connection.execute(
+                        sqlalchemy.text(
+                            """
+                            INSERT INTO travel_routes (world, origin, destination)
+                            VALUES (:world, :origin, :destination)
+                            """
+                        ),
+                        [
+                            {
+                                "world": world_id,
+                                "origin": route.origin.name,
+                                "destination": route.destination.name,
+                            }
+                            for route in new_world.travel_routes
+                        ]
+                    )
+
+                    return JSONResponse(
+                        content={"game_id": game_id},
+                        status_code=200,
+                    )
+
+                else:
+                    return JSONResponse(
+                        content="failed on world",
+                        status_code=404,
+                    )
+
             else:
                 return JSONResponse(
-                    content=None,
+                    content="failed on game",
                     status_code=404,
                 )
 
@@ -61,14 +106,14 @@ async def get_companies_in_instance(game_id: int):
                     """WITH valued AS (
                         SELECT companies.name as name,
                           companies.id as id,
-                          companies.game_instance as game_instance,
+                          companies.game as game_instance,
                           SUM(change) as value
                           FROM companies JOIN item_ledger
                           ON companies.id = item_ledger.company_id
                           JOIN items
                           ON item_ledger.item_id = items.id
                           WHERE items.name = 'GOLD'
-                          GROUP BY companies.name, companies.id, companies.game_instance
+                          GROUP BY companies.name, companies.id, companies.game
                         )
                         SELECT name, id, value
                         FROM valued
