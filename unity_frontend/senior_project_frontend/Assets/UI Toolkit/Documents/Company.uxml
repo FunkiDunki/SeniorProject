@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Company" style="flex-grow: 1; background-color: rgba(253, 253, 253, 0.53);">
+        <ui:Label tabindex="-1" text="Billy" display-tooltip-when-elided="true" name="Name" />
+        <ui:FloatField label="Value" value="42.2" name="ValueField" />
+        <ui:IntegerField label="id" value="42" name="CompanyId" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -67,7 +67,7 @@ async def post_new_company(inst_id: int, company: Company):
         with db.engine.begin() as connection:
             result = connection.execute(
                 sqlalchemy.text(
-                    """INSERT into companies (name, game_instance)
+                    """INSERT into companies (name, game)
                         VALUES (:name, :g_id)
                         RETURNING id"""
                 ),
