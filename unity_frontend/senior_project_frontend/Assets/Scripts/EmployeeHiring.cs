@@ -39,7 +39,7 @@ public class EmployeeHiring : MonoBehaviour
     void Start()
     {
         employeeList.document.rootVisualElement.Q<Button>("HireButton").clickable.clicked += AttemptToHire;
-        employeeList.document.rootVisualElement.Q<Button>("RefreshButton").clickable.clicked += RefreshEmployees;
+        employeeList.document.rootVisualElement.Q<VisualElement>("Employees").Q<Button>("RefreshButton").clickable.clicked += RefreshEmployees;
     }
 
     void RefreshEmployees()
