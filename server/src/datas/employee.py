@@ -29,5 +29,11 @@ def rand_employee() -> Employee:
     name = faker.name()
     salary = random.randint(1, 1000)
     morale = random.uniform(1.0, 100.0)
+    tags = [
+        ("cooking", random.randint(0, 101)),
+        ("fighting", random.randint(0, 101)),
+        ("charisma", random.randint(0, 101)),
+        ("critical_thinking", random.randint(0, 101)),
+    ]
 
-    return Employee(name, salary, morale, [])
+    return Employee(name, salary, morale, tags)
