@@ -48,7 +48,7 @@ def random_travel_routes(locations: List[lc.Location]) -> List[TravelRoute]:
     for curr in range(len(locations) - 1):
 
         origin = locations[curr]
-        possible_destinations = locations[(curr + 1) :].copy()
+        possible_destinations = locations[(curr + 1):].copy()
         num_desired = random.randint(1, len(possible_destinations))
         num_paths = 0
 
