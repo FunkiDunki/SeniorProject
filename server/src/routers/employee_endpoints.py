@@ -26,7 +26,7 @@ async def get_all_employees(company_id: int):
                 sqlalchemy.text(
                     """SELECT id, name, salary, morale
                         FROM employees
-                        WHERE company = :cid"""
+                        WHERE company_id = :cid"""
                 ),
                 {"cid": company_id},
             ).all()
@@ -58,7 +58,7 @@ async def post_hire_employee(company_id: int):
             empl_id = connection.execute(
                 sqlalchemy.text(
                     """
-                    INSERT INTO employees (company, name, salary, morale)
+                    INSERT INTO employees (company_id, name, salary, morale)
                     VALUES (:company, :name, :salary, :morale)
                     RETURNING id
                     """

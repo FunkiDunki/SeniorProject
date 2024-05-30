@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="ActiveRecipe" style="flex-grow: 1; background-color: rgba(253, 253, 253, 0.53);">
+        <ui:Label tabindex="-1" text="Billy" display-tooltip-when-elided="true" name="Item" />
+        <ui:IntegerField label="amount" value="42" name="AmountField" readonly="false" />
+        <ui:Label tabindex="-1" text="Billy" display-tooltip-when-elided="true" name="Employee" />
+    </ui:VisualElement>
+</ui:UXML>

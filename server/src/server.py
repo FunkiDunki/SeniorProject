@@ -24,7 +24,6 @@ app.include_router(companies.router)
 app.include_router(recipe_endpoints.router)
 
 
-
 class DataItem(BaseModel):
     age: int
     name: str
