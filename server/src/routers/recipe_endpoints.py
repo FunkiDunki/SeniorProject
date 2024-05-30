@@ -12,56 +12,6 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-
-@router.get("/completable_recipes/{company_id}")
-async def get_completable_recipes(company_id: int):
-    try:
-        with db.engine.begin() as connection:
-            cur_time = connection.execute(
-                sqlalchemy.text(
-                    """INSERT INTO timestamps
-                        DEFAULT VALUES
-                        RETURNING created_at
-                    """
-                ),
-            ).fetchone()[0]
-            result = connection.execute(
-                sqlalchemy.text(
-                    """SELECT items.name AS iname,
-                        recipes.output_quantity AS amt,
-                        employees.name AS ename,
-                        tasks.id AS task
-                        FROM tasks
-                        JOIN employees ON tasks.empl_id = employees.id
-                        JOIN recipes ON tasks.recipe_id = recipes.id
-                        JOIN items ON recipes.output_id = items.id
-                        WHERE company_id = :cid
-                        AND tasks.time_completed<:curtime
-                        AND tasks.completed = FALSE"""
-                ),
-                {"cid": company_id, "curtime": cur_time},
-            ).all()
-
-        completed_tasks = []
-        if result:
-            for row in result:
-                completed_tasks.append(
-                    {
-                        "item": row.iname,
-                        "amount": row.amt,
-                        "employee": row.ename,
-                        "task": row.task,
-                    }
-                )
-        return JSONResponse(
-            content={"completable_recipes": completed_tasks},
-            status_code=200,
-        )
-
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-
 @router.get("/active_recipes/{company_id}")
 async def get_active_recipes(company_id: int):
     try:
@@ -77,15 +27,18 @@ async def get_active_recipes(company_id: int):
 
             result = connection.execute(
                 sqlalchemy.text(
-                    """SELECT items.name AS iname,
+                    """SELECT tasks.id AS id,
+                        items.name AS iname,
                         recipes.output_quantity AS amt,
-                        employees.name AS ename
+                        employees.name AS ename,
+                        CASE WHEN tasks.time_completed < :curtime THEN 'true' 
+                            ELSE 'false' END AS is_ready,
+                        tasks.time_completed - :curtime AS time_remaining
                         FROM tasks
                         JOIN employees ON tasks.empl_id = employees.id
                         JOIN recipes ON tasks.recipe_id = recipes.id
                         JOIN items ON recipes.output_id = items.id
                         WHERE company_id = :cid
-                        AND tasks.time_completed>:curtime
                         AND tasks.completed = FALSE"""
                 ),
                 {"cid": company_id, "curtime": cur_time},
@@ -95,7 +48,14 @@ async def get_active_recipes(company_id: int):
         if result:
             for row in result:
                 completed_tasks.append(
-                    {"item": row.iname, "amount": row.amt, "employee": row.ename}
+                    {
+                        "item": row.iname,
+                        "amount": row.amt,
+                        "employee": row.ename,
+                        "is_ready": row.is_ready,
+                        "time_remaining": str(row.time_remaining),
+                        "id": row.id,
+                    }
                 )
         return JSONResponse(
             content={"active_recipes": completed_tasks},
