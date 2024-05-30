@@ -80,13 +80,13 @@ async def post_hire_employee(company_id: int):
                     {
                         "company": company_id,
                         "employee": empl_id,
-                        "change": new_employee.salary
-                    }
+                        "change": new_employee.salary,
+                    },
                 )
 
                 response_tags = []
 
-                for (skill, efficiency) in new_employee.tags:
+                for skill, efficiency in new_employee.tags:
                     skill_id = connection.execute(
                         sqlalchemy.text(
                             """
@@ -94,7 +94,8 @@ async def post_hire_employee(company_id: int):
                             FROM skills
                             WHERE name = :skill
                             """
-                        ), {"skill": skill}
+                        ),
+                        {"skill": skill},
                     ).scalar()
 
                     if skill_id:
@@ -108,28 +109,17 @@ async def post_hire_employee(company_id: int):
                             {
                                 "employee": empl_id,
                                 "skill": skill_id,
-                                "efficiency": efficiency
-                            }
+                                "efficiency": efficiency,
+                            },
                         )
 
-                        response_tags.append(
-                            {
-                                "skill": skill,
-                                "efficiency": efficiency
-                            }
-                        )
+                        response_tags.append({"skill": skill, "efficiency": efficiency})
 
                     else:
-                        return JSONResponse(
-                            content=None,
-                            status_code=404
-                        )
+                        return JSONResponse(content=None, status_code=404)
 
                 return JSONResponse(
-                    content={
-                        "name": new_employee.name,
-                        "tags": response_tags
-                    }
+                    content={"name": new_employee.name, "tags": response_tags}
                 )
 
             else:

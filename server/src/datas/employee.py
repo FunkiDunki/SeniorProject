@@ -33,7 +33,7 @@ def rand_employee() -> Employee:
         ("cooking", random.randint(0, 101)),
         ("fighting", random.randint(0, 101)),
         ("charisma", random.randint(0, 101)),
-        ("critical_thinking", random.randint(0, 101))
+        ("critical_thinking", random.randint(0, 101)),
     ]
 
     return Employee(name, salary, morale, tags)
