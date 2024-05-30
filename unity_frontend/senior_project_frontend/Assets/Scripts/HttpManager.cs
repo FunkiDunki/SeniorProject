@@ -58,6 +58,67 @@ public class HttpManager : MonoBehaviour
         cubetext.text = wisdom;
     }
 
+    public static IEnumerator SendRequest(string type, object data, string url, Action<string> onSuccess)
+    {
+        // Convert the data to a JSON string
+        string jsonData = JsonUtility.ToJson(data);
+
+        // Convert jsonData to a byte array
+        byte[] postData = Encoding.UTF8.GetBytes(jsonData);
+
+        // Create a new UnityWebRequest, setting the URL, method, and body data
+        using (UnityWebRequest request = new UnityWebRequest(url, type)) 
+        {
+            request.uploadHandler = (UploadHandler)new UploadHandlerRaw(postData);
+            request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            // Wait until the request is done
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                UnityEngine.Debug.LogError(request.error);
+            }
+            else
+            {
+                string text = request.downloadHandler.text;
+                onSuccess(text);
+            }
+        }
+    }
+
+
+
+    public static IEnumerator GetRequest(object data, string url, Action<string> onSuccess)
+    {
+        // Convert the data to a JSON string
+        string jsonData = JsonUtility.ToJson(data);
+
+        // Convert jsonData to a byte array
+        byte[] postData = Encoding.UTF8.GetBytes(jsonData);
+
+        // Create a new UnityWebRequest, setting the URL, method, and body data
+        using (UnityWebRequest request = new UnityWebRequest(url, "GET"))
+        {
+            request.uploadHandler = (UploadHandler)new UploadHandlerRaw(postData);
+            request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            // Wait until the request is done
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                UnityEngine.Debug.LogError(request.error);
+            }
+            else
+            {
+                string text = request.downloadHandler.text;
+                onSuccess(text);
+            }
+        }
+    }
 
     public static IEnumerator PostRequest(object data, string url, Action<string> onSuccess)
     {

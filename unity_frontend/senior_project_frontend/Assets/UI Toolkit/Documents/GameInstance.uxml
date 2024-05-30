@@ -1,9 +1,25 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="GameInstance" style="flex-grow: 1; background-color: rgba(253, 253, 253, 0.53); flex-direction: row; align-items: center; align-self: center; flex-shrink: 0; width: 100%; height: 100%; justify-content: center;">
-        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-shrink: 0;">
-            <ui:TextField picking-mode="Ignore" label="Game Name&#10;" value="PutNameHere" name="GameNameField" style="flex-direction: row;" />
-            <ui:IntegerField label="Game Id" value="0" name="GameId" is-delayed="false" readonly="true" />
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-shrink: 0; width: 40%;">
+            <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between;">
+                <ui:TextField picking-mode="Ignore" label="Game Name" value="PutNameHere" name="GameNameField" style="flex-direction: row; flex-grow: 1;" />
+                <ui:Button text="Create Game" display-tooltip-when-elided="true" name="NewInstanceButton" style="width: 25%;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between;">
+                <ui:IntegerField label="Game Id" value="0" name="GameId" is-delayed="false" readonly="false" style="flex-grow: 1;" />
+                <ui:Button text="Join Game" display-tooltip-when-elided="true" name="JoinInstanceButton" style="width: 25%;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between;">
+                <ui:TextField picking-mode="Ignore" label="Company Name" value="PutNameHere" name="CompanyNameField" style="flex-direction: row; flex-grow: 1;" />
+                <ui:Button text="Create Company" display-tooltip-when-elided="true" name="NewCompanyButton" style="width: 25%;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between;">
+                <ui:IntegerField label="Company Id" value="0" name="CompanyId" is-delayed="false" readonly="false" style="flex-grow: 1;" />
+                <ui:Button text="Login" display-tooltip-when-elided="true" name="JoinCompanyButton" style="width: 25%;" />
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:Button text="Create Game" display-tooltip-when-elided="true" name="NewInstanceButton" style="width: 35%; height: 60%;" />
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); height: 60%; background-image: none;">
+            <ui:VisualElement name="ConnectionIndicator" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/art/offline.png?fileID=21300000&amp;guid=ce04473300f353e44a823d921ebb1e61&amp;type=3#offline&apos;);" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

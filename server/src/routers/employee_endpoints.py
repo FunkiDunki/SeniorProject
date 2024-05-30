@@ -26,7 +26,7 @@ async def get_all_employees(game_instance: int):
                 sqlalchemy.text(
                     """SELECT name
                         FROM employees
-                        WHERE game_id = :gid"""
+                        WHERE game = :gid"""
                 ),
                 {"gid": game_instance},
             ).all()
@@ -48,26 +48,85 @@ async def get_all_employees(game_instance: int):
         print(f"Error returned: <<<{error}>>>")
 
 
-@router.post("/")
-async def post_hire_employee():
+@router.post("/{company_id}")
+async def post_hire_employee(company_id: int):
     try:
         with db.engine.begin() as connection:
             new_employee = em.rand_employee()
-            connection.execute(
+            empl_id = connection.execute(
                 sqlalchemy.text(
-                    """INSERT into employees (name, salary, morale)
-                        VALUES (:name, :salary, :morale)"""
+                    """
+                    INSERT INTO employees (company, name, salary, morale)
+                    VALUES (:company, :name, :salary, :morale)
+                    RETURNING id
+                    """
                 ),
                 {
+                    "company": company_id,
                     "name": new_employee.name,
                     "salary": new_employee.salary,
                     "morale": new_employee.morale,
                 },
-            )
-            return {
-                "employee_hired": new_employee.name,
-                "salary": new_employee.salary,
-                "morale": new_employee.morale,
-            }
+            ).scalar()
+
+            if empl_id:
+                connection.execute(
+                    sqlalchemy.text(
+                        """
+                        INSERT INTO employee_ledger (company, employee, change)
+                        VALUES (:company, :employee, :change)
+                        """
+                    ),
+                    {
+                        "company": company_id,
+                        "employee": empl_id,
+                        "change": new_employee.salary,
+                    },
+                )
+
+                response_tags = []
+
+                for skill, efficiency in new_employee.tags:
+                    skill_id = connection.execute(
+                        sqlalchemy.text(
+                            """
+                            SELECT id
+                            FROM skills
+                            WHERE name = :skill
+                            """
+                        ),
+                        {"skill": skill},
+                    ).scalar()
+
+                    if skill_id:
+                        connection.execute(
+                            sqlalchemy.text(
+                                """
+                                INSERT INTO tags (employee, skill, efficiency)
+                                VALUES (:employee, :skill, :efficiency)
+                                """
+                            ),
+                            {
+                                "employee": empl_id,
+                                "skill": skill_id,
+                                "efficiency": efficiency,
+                            },
+                        )
+
+                        response_tags.append({"skill": skill, "efficiency": efficiency})
+
+                    else:
+                        return JSONResponse(content=None, status_code=404)
+
+                return JSONResponse(
+                    content={"name": new_employee.name, "tags": response_tags}
+                )
+
+            else:
+                return JSONResponse(
+                    content=None,
+                    status_code=404,
+                )
+
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")

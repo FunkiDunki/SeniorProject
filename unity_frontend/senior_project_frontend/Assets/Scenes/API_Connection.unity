@@ -370,6 +370,7 @@ GameObject:
   - component: {fileID: 195380058}
   - component: {fileID: 195380059}
   - component: {fileID: 195380060}
+  - component: {fileID: 195380061}
   m_Layer: 5
   m_Name: UIDocument
   m_TagString: Untagged
@@ -447,7 +448,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe7e1d44d280e54fa9f4b7f24cb621c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onlineSprite: {fileID: 21300000, guid: 469aca044aa99aa4fb17f241ae0e7ce1, type: 3}
+  offlineSprite: {fileID: 21300000, guid: ce04473300f353e44a823d921ebb1e61, type: 3}
   document: {fileID: 195380056}
+--- !u!114 &195380061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195380055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e659f5d9055952409050bc10e20c86e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  document: {fileID: 195380056}
+  itemTemplate: {fileID: 9197481963319205126, guid: 556816dc26f0ca14ea65255a9e2219ac, type: 3}
 --- !u!1 &201282178
 GameObject:
   m_ObjectHideFlags: 0

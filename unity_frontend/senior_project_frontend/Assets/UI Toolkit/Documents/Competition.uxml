@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Competition" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.46); flex-direction: column; left: 0; border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px; border-left-color: rgba(255, 255, 255, 0.94); border-right-color: rgba(255, 255, 255, 0.94); border-top-color: rgba(255, 255, 255, 0.94); border-bottom-color: rgba(255, 255, 255, 0.94); flex-shrink: 0;">
+        <ui:Label tabindex="-1" text="Competition" display-tooltip-when-elided="true" style="font-size: 50%; color: rgb(255, 255, 255);" />
+        <ui:Button text="Refresh List" display-tooltip-when-elided="true" name="RefreshButton" />
+        <ui:ListView focusable="true" name="CompaniesList" fixed-item-height="36" virtualization-method="DynamicHeight" />
+    </ui:VisualElement>
+</ui:UXML>

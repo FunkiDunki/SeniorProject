@@ -1,6 +1,6 @@
 import dataclasses as dc
 import random
-from typing import List, Tuple
+from typing import List
 
 from . import exceptions as ex
 from . import location as lc
@@ -15,7 +15,8 @@ class TravelRoute:
     to get from one to the other.
     """
 
-    locations: Tuple[lc.Location, lc.Location]
+    origin: lc.Location
+    destination: lc.Location
     distance: int
     travel_type: str
 
@@ -25,11 +26,12 @@ def random_travel_route(start: lc.Location, end: lc.Location) -> TravelRoute:
     generates a random travel route between two given locations
     """
 
-    locations = (start, end)
+    origin = start
+    destination = end
     distance = random.randint(1, 100)
     travel_type = random.choice(["land", "water", "air"])
 
-    return TravelRoute(locations, distance, travel_type)
+    return TravelRoute(origin, destination, distance, travel_type)
 
 
 def random_travel_routes(locations: List[lc.Location]) -> List[TravelRoute]:
