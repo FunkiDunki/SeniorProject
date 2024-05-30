@@ -8,6 +8,7 @@ from src.routers import (
     employee_endpoints,
     game_instance_endpoints,
     world_graph_endpoints,
+    recipe_endpoints,
 )
 
 PORT = 11000
@@ -20,6 +21,8 @@ app.include_router(employee_endpoints.router)
 app.include_router(world_graph_endpoints.router)
 app.include_router(game_instance_endpoints.router)
 app.include_router(companies.router)
+app.include_router(recipe_endpoints.router)
+
 
 
 class DataItem(BaseModel):
