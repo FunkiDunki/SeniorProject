@@ -12,6 +12,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @router.get("/active_recipes/{company_id}")
 async def get_active_recipes(company_id: int):
     try:
