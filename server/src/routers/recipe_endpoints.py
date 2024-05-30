@@ -32,7 +32,7 @@ async def get_active_recipes(company_id: int):
                         items.name AS iname,
                         recipes.output_quantity AS amt,
                         employees.name AS ename,
-                        CASE WHEN tasks.time_completed < :curtime THEN 'true' 
+                        CASE WHEN tasks.time_completed < :curtime THEN 'true'
                             ELSE 'false' END AS is_ready,
                         tasks.time_completed - :curtime AS time_remaining
                         FROM tasks
