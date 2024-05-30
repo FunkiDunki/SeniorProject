@@ -103,16 +103,20 @@ async def get_companies_in_instance(game_id: int):
         with db.engine.begin() as connection:
             result = connection.execute(
                 sqlalchemy.text(
-                    """WITH valued AS (
+                    """WITH gold_ledger as (
+                          SELECT item_ledger.company_id as company_id,
+                          change
+                          FROM item_ledger JOIN items
+                          ON item_ledger.item_id = items.id
+                          WHERE items.name = 'GOLD'
+                        ),
+                        valued AS (
                         SELECT companies.name as name,
                           companies.id as id,
                           companies.game as game_instance,
-                          SUM(change) as value
-                          FROM companies JOIN item_ledger
-                          ON companies.id = item_ledger.company_id
-                          JOIN items
-                          ON item_ledger.item_id = items.id
-                          WHERE items.name = 'GOLD'
+                          COALESCE(SUM(change),0) as value
+                          FROM companies LEFT JOIN gold_ledger
+                          ON companies.id = gold_ledger.company_id
                           GROUP BY companies.name, companies.id, companies.game
                         )
                         SELECT name, id, value

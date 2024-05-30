@@ -27,6 +27,7 @@ public class UIListScript : MonoBehaviour
 
         employeesList.bindItem = (element, i) => {
             var itemData = items[i];
+            element.Q<IntegerField>("IdField").value = itemData.id;
             element.Q<Label>("Name").text = itemData.name;
             element.Q<FloatField>("SalaryField").value = itemData.salary;
             element.Q<FloatField>("MoraleField").value = itemData.morale;
@@ -40,6 +41,7 @@ public class UIListScript : MonoBehaviour
 
     public class ItemData
     {
+        public int id { get; set; }
         public string name { get; set; }
         public float salary { get; set; }
         public float morale { get; set; }

@@ -11,10 +11,10 @@ public class EmployeeHiring : MonoBehaviour
     [Serializable]
     public class EmployeePacket
     {
+        public int id;
         public string name;
         public float salary;
         public float morale;
-        public string[] tags;
 
         public static EmployeePacket CreateFromJson(string jsonString)
         {
@@ -25,10 +25,10 @@ public class EmployeeHiring : MonoBehaviour
     [Serializable]
     public class EmployeeListPacket
     {
-        public EmployeePacket[] employeePackets;
+        public EmployeePacket[] employees;
         public static EmployeeListPacket CreateFromJson(string jsonString)
         {
-            string fixedJson = "{\"employeePackets\":" + jsonString + "}";
+            string fixedJson = jsonString;
             return JsonUtility.FromJson<EmployeeListPacket>(fixedJson);
         }
     }
@@ -44,11 +44,11 @@ public class EmployeeHiring : MonoBehaviour
 
     void RefreshEmployees()
     {
-        if (!GameInstanceScript.hasInstance)
+        if (!GameInstanceScript.hasCompanyId)
         {
             return;
         }
-        string url = HttpManager.EndpointToUrl("/employees/" + GameInstanceScript.instanceId, HttpManager.manager.host, HttpManager.manager.port);
+        string url = HttpManager.EndpointToUrl("/employees/" + GameInstanceScript.companyId, HttpManager.manager.host, HttpManager.manager.port);
         StartCoroutine(HttpManager.SendRequest(type: "Get", new { }, url, RefreshSuccess));
     }
 
@@ -58,14 +58,15 @@ public class EmployeeHiring : MonoBehaviour
         HttpManager.manager.CubeIt(text);
         EmployeeListPacket employeeListPacket = EmployeeListPacket.CreateFromJson(text);
         List<UIListScript.ItemData> itemDatas = new List<UIListScript.ItemData>();
-        for (int i = 0; i < employeeListPacket.employeePackets.Length; i++)
+        for (int i = 0; i < employeeListPacket.employees.Length; i++)
         {
             itemDatas.Add(new UIListScript.ItemData
             {
-                name = employeeListPacket.employeePackets[i].name,
-                salary = employeeListPacket.employeePackets[i].salary,
-                morale = employeeListPacket.employeePackets[i].morale
-            });
+                id = employeeListPacket.employees[i].id,
+                name = employeeListPacket.employees[i].name,
+                salary = employeeListPacket.employees[i].salary,
+                morale = employeeListPacket.employees[i].morale
+            }) ;
         }
         employeeList.RefreshItems(itemDatas);
     }

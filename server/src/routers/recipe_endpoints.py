@@ -1,9 +1,10 @@
+from datetime import timedelta
+
 import sqlalchemy
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
 from src import database as db
-from datetime import timedelta
 
 router = APIRouter(
     prefix="/recipes",
@@ -12,36 +13,36 @@ router = APIRouter(
 )
 
 
-@router.get("/completable_recipes")
-async def get_completable_recipes(game_instance: int):
+@router.get("/active_recipes/{company_id}")
+async def get_active_recipes(company_id: int):
     try:
         with db.engine.begin() as connection:
             cur_time = connection.execute(
                 sqlalchemy.text(
-                    """SELECT created_at
-                        FROM timestamps
-                        WHERE id = (SELECT MAX(id) FROM timestamps)"""
+                    """INSERT INTO timestamps
+                        DEFAULT VALUES
+                        RETURNING created_at
+                    """
                 ),
             ).fetchone()[0]
+
             result = connection.execute(
                 sqlalchemy.text(
-                    """SELECT items.name AS iname,
+                    """SELECT tasks.id AS id,
+                        items.name AS iname,
                         recipes.output_quantity AS amt,
                         employees.name AS ename,
-                        tasks.id AS task
+                        CASE WHEN tasks.time_completed < :curtime THEN 'true'
+                            ELSE 'false' END AS is_ready,
+                        tasks.time_completed - :curtime AS time_remaining
                         FROM tasks
                         JOIN employees ON tasks.empl_id = employees.id
                         JOIN recipes ON tasks.recipe_id = recipes.id
                         JOIN items ON recipes.output_id = items.id
-                        JOIN companies ON employees.company_id = companies.id
-                        WHERE companies.game = :gid
-                        AND tasks.time_completed<:curtime
+                        WHERE company_id = :cid
                         AND tasks.completed = FALSE"""
                 ),
-                {
-                    "gid": game_instance,
-                    "curtime": cur_time
-                },
+                {"cid": company_id, "curtime": cur_time},
             ).all()
 
         completed_tasks = []
@@ -52,57 +53,9 @@ async def get_completable_recipes(game_instance: int):
                         "item": row.iname,
                         "amount": row.amt,
                         "employee": row.ename,
-                        "task": row.task
-                    }
-                )
-        return JSONResponse(
-            content={"completable_recipes": completed_tasks},
-            status_code=200,
-        )
-        
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-
-@router.get("/active_recipes")
-async def get_active_recipes(game_instance: int):
-    try:
-        with db.engine.begin() as connection:
-            cur_time = connection.execute(
-                sqlalchemy.text(
-                    """SELECT created_at
-                        FROM timestamps
-                        WHERE id = (SELECT MAX(id) FROM timestamps)"""
-                ),
-            ).fetchone()[0]
-            result = connection.execute(
-                sqlalchemy.text(
-                    """SELECT items.name AS iname,
-                        recipes.output_quantity AS amt,
-                        employees.name AS ename
-                        FROM tasks
-                        JOIN employees ON tasks.empl_id = employees.id
-                        JOIN recipes ON tasks.recipe_id = recipes.id
-                        JOIN items ON recipes.output_id = items.id
-                        JOIN companies ON employees.company_id = companies.id
-                        WHERE companies.game = :gid
-                        AND tasks.time_completed>:curtime
-                        AND tasks.completed = FALSE"""
-                ),
-                {
-                    "gid": game_instance,
-                    "curtime": cur_time
-                },
-            ).all()
-
-        completed_tasks = []
-        if result:
-            for row in result:
-                completed_tasks.append(
-                    {
-                        "item": row.iname,
-                        "amount": row.amt,
-                        "employee": row.ename
+                        "is_ready": row.is_ready,
+                        "time_remaining": str(row.time_remaining),
+                        "id": row.id,
                     }
                 )
         return JSONResponse(
@@ -119,8 +72,10 @@ async def post_complete_recipe(task_id: int):
         with db.engine.begin() as connection:
             cur_time = connection.execute(
                 sqlalchemy.text(
-                    """SELECT MAX(id)
-                        FROM timestamps"""
+                    """INSERT INTO timestamps
+                        DEFAULT VALUES
+                        RETURNING id
+                    """
                 ),
             ).fetchone()[0]
 
@@ -157,8 +112,8 @@ async def post_complete_recipe(task_id: int):
                             "timestamp": cur_time,
                             "company_id": item.company_id,
                             "item_id": item.output_id,
-                            "quantity": item.output_quantity
-                        }
+                            "quantity": item.output_quantity,
+                        },
                     )
 
                 connection.execute(
@@ -167,16 +122,14 @@ async def post_complete_recipe(task_id: int):
                             SET completed = TRUE
                             WHERE id = :taskid"""
                     ),
-                    {"taskid": task_id}
+                    {"taskid": task_id},
                 )
             else:
                 return JSONResponse(
                     content={"success": False},
                     status_code=404,
                 )
-            return JSONResponse(
-                    content={"success": True}
-                )
+            return JSONResponse(content={"success": True})
 
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
@@ -209,6 +162,7 @@ async def post_begin_recipe(recipe_id: int, empl_id: int):
                         WHERE id = (SELECT MAX(id) FROM timestamps)"""
                 ),
             ).fetchone()[0]
+
             cur_timestamp = connection.execute(
                 sqlalchemy.text(
                     """SELECT MAX(id)
@@ -221,7 +175,7 @@ async def post_begin_recipe(recipe_id: int, empl_id: int):
                         FROM recipe_items
                         WHERE recipe_id = :recipe_id"""
                 ),
-                {"recipe_id": recipe_id}
+                {"recipe_id": recipe_id},
             ).all()
             company_id = connection.execute(
                 sqlalchemy.text(
@@ -229,7 +183,7 @@ async def post_begin_recipe(recipe_id: int, empl_id: int):
                         FROM employees
                         WHERE id = :empl_id"""
                 ),
-                {"empl_id": empl_id}
+                {"empl_id": empl_id},
             ).one()[0]
 
         valid_skills = {"neutral": 10}
@@ -252,8 +206,8 @@ async def post_begin_recipe(recipe_id: int, empl_id: int):
         for key in valid_skills:
             if key in empl_skills:
                 cur = empl_skills[key]
-                if (((valid_skills[key]/cur) < best_time) or best_time == 0):
-                    best_time = valid_skills[key]/cur
+                if ((valid_skills[key] / cur) < best_time) or best_time == 0:
+                    best_time = valid_skills[key] / cur
         if best_time == 0:
             best_time = 20
         with db.engine.begin() as connection:
@@ -265,7 +219,7 @@ async def post_begin_recipe(recipe_id: int, empl_id: int):
                 {
                     "recipe_id": recipe_id,
                     "empl_id": empl_id,
-                    "time_completed": cur_time+timedelta(minutes=best_time)
+                    "time_completed": cur_time + timedelta(minutes=best_time),
                 },
             )
             if recipe_items:
@@ -286,16 +240,15 @@ async def post_begin_recipe(recipe_id: int, empl_id: int):
                             "timestamp": cur_timestamp,
                             "company_id": company_id,
                             "item_id": item.item_id,
-                            "amt": item.quantity
-                        }
+                            "amt": item.quantity,
+                        },
                     )
             else:
                 return None
         return {
             "recipe_id": recipe_id,
             "empl_id": empl_id,
-            "time_completed": cur_time+timedelta(minutes=best_time),
+            "time_completed": cur_time + timedelta(minutes=best_time),
         }
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
-
