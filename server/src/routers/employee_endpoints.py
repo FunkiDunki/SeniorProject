@@ -18,32 +18,34 @@ fake_db = [
 ]
 
 
-@router.get("/{game_instance}")
-async def get_all_employees(game_instance: int):
+@router.get("/{company_id}")
+async def get_all_employees(company_id: int):
     try:
         with db.engine.begin() as connection:
             result = connection.execute(
                 sqlalchemy.text(
-                    """SELECT name
+                    """SELECT id, name, salary, morale
                         FROM employees
-                        WHERE game = :gid"""
+                        WHERE company = :cid"""
                 ),
-                {"gid": game_instance},
+                {"cid": company_id},
             ).all()
         employees = []
         if result:
             for row in result:
-                employees.append({"name": row.name})
-            response = JSONResponse(
-                content=employees,
-                status_code=200,
-            )
-            return response
-        else:
-            return JSONResponse(
-                content=None,
-                status_code=404,
-            )
+                employees.append(
+                    {
+                        "id": row.id,
+                        "name": row.name,
+                        "salary": row.salary,
+                        "morale": row.morale,
+                    }
+                )
+        response = JSONResponse(
+            content={"employees": employees},
+            status_code=200,
+        )
+        return response
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
