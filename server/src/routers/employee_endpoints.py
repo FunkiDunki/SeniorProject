@@ -75,14 +75,15 @@ async def post_hire_employee(company_id: int):
                 connection.execute(
                     sqlalchemy.text(
                         """
-                        INSERT INTO employee_ledger (company, employee, change)
-                        VALUES (:company, :employee, :change)
+                        INSERT INTO item_ledger (company_id, item_id, change)
+                        SELECT :company_id, items.id, :change
+                        FROM items
+                        WHERE items.name = 'GOLD'
                         """
                     ),
                     {
-                        "company": company_id,
-                        "employee": empl_id,
-                        "change": new_employee.salary,
+                        "company_id": company_id,
+                        "change": -1 * new_employee.salary,
                     },
                 )
 
@@ -104,7 +105,7 @@ async def post_hire_employee(company_id: int):
                         connection.execute(
                             sqlalchemy.text(
                                 """
-                                INSERT INTO tags (employee, skill, efficiency)
+                                INSERT INTO tags (empl_id, skill_id, efficiency)
                                 VALUES (:employee, :skill, :efficiency)
                                 """
                             ),
@@ -121,7 +122,13 @@ async def post_hire_employee(company_id: int):
                         return JSONResponse(content=None, status_code=404)
 
                 return JSONResponse(
-                    content={"name": new_employee.name, "tags": response_tags}
+                    content={
+                        "id": empl_id,
+                        "name": new_employee.name,
+                        "salary": new_employee.salary,
+                        "morale": new_employee.morale,
+                        "tags": response_tags,
+                    }
                 )
 
             else:
