@@ -92,6 +92,35 @@ public class UIProductionList : MonoBehaviour
         activesList.itemsSource = items;
         activesList.selectionType = SelectionType.Single;
         rootVisualElement.Q<VisualElement>("Production").Q<Button>("RefreshButton").clickable.clicked += RefreshActiveRecipes;
+        rootVisualElement.Q<VisualElement>("StartRecipeSection").Q<Button>("StartRecipeButton").clickable.clicked += AttemptStartRecipe;
+    }
+
+    [Serializable]
+    public class RecipeData
+    {
+        public int recipe_id;
+        public int employee_id;
+    }
+
+    private void AttemptStartRecipe()
+    {
+        if (!GameInstanceScript.hasCompanyId)
+        {
+            return;
+        }
+        string url = HttpManager.EndpointToUrl("/recipes/create_recipe", HttpManager.manager.host, HttpManager.manager.port);
+        VisualElement startSection = document.rootVisualElement.Q<VisualElement>("StartRecipeSection");
+        int rec_id = startSection.Q<IntegerField>("RecipeIdField").value;
+        int employee_id = startSection.Q<IntegerField>("EmployeeIdField").value;
+
+        StartCoroutine(HttpManager.SendRequest(type: "POST", new RecipeData { recipe_id=rec_id, employee_id=employee_id}, url, StartRecipeSuccess));
+
+    }
+    void StartRecipeSuccess(string text)
+    {
+        print(text);
+        HttpManager.manager.CubeIt(text);
+        RefreshActiveRecipes();
     }
 
     private void AttemptCompleteRecipe(int recipeId)

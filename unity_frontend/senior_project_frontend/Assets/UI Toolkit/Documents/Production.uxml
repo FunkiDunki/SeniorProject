@@ -1,7 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="Production" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.46); flex-direction: column; left: 0; border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px; border-left-color: rgba(255, 255, 255, 0.94); border-right-color: rgba(255, 255, 255, 0.94); border-top-color: rgba(255, 255, 255, 0.94); border-bottom-color: rgba(255, 255, 255, 0.94); flex-shrink: 1;">
         <ui:Label tabindex="-1" text="Production" display-tooltip-when-elided="true" style="font-size: 50%; color: rgb(255, 255, 255);" />
-        <ui:VisualElement name="ActiveRecipes" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+        <ui:VisualElement name="StartRecipeSection" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: space-between; min-height: 25%;">
+            <ui:Label tabindex="-1" text="Starting Recipes" display-tooltip-when-elided="true" style="font-size: 14px; color: rgb(255, 255, 255);" />
+            <ui:IntegerField label="Recipe Id" value="42" name="RecipeIdField" />
+            <ui:IntegerField label="Employee Id" value="42" name="EmployeeIdField" />
+            <ui:Button text="Start Cookin up a Storm" display-tooltip-when-elided="true" name="StartRecipeButton" />
+        </ui:VisualElement>
+        <ui:VisualElement name="ActiveRecipes" style="flex-grow: 0.8; background-color: rgba(0, 0, 0, 0);">
             <ui:Label tabindex="-1" text="Active Recipes" display-tooltip-when-elided="true" style="color: rgb(255, 255, 255);" />
             <ui:Button text="Refresh List" display-tooltip-when-elided="true" name="RefreshButton" />
             <ui:ListView focusable="true" name="ActiveRecipesList" fixed-item-height="36" virtualization-method="DynamicHeight" />
