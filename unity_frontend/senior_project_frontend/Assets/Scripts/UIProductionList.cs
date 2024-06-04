@@ -20,6 +20,8 @@ public class UIProductionList : MonoBehaviour
         public string item;
         public int amount;
         public string employee;
+        public bool is_ready;
+        public int id;
 
         public static ActiveRecipe CreateFromJson(string jsonString)
         {
@@ -76,9 +78,15 @@ public class UIProductionList : MonoBehaviour
 
         activesList.bindItem = (element, i) => {
             var itemData = items[i];
-            element.Q<Label>("Item").text = itemData.item;
+            element.Q<TextField>("ItemField").value = itemData.item;
             element.Q<IntegerField>("AmountField").value = itemData.amount;
-            element.Q<Label>("Employee").text = itemData.employee;
+            element.Q<TextField>("EmployeeField").value = itemData.employee;
+            element.Q<IntegerField>("IdField").value = itemData.id;
+            element.Q<Toggle>("IsReadyToggle").value = itemData.is_ready;
+            if (itemData.is_ready)
+            {
+                element.Q<Button>("CompleteButton").clickable.clicked += ()=> AttemptCompleteRecipe(itemData.id);
+            }
         };
 
         activesList.itemsSource = items;
@@ -86,7 +94,19 @@ public class UIProductionList : MonoBehaviour
         rootVisualElement.Q<VisualElement>("Production").Q<Button>("RefreshButton").clickable.clicked += RefreshActiveRecipes;
     }
 
-   
+    private void AttemptCompleteRecipe(int recipeId)
+    {
+        string url = HttpManager.EndpointToUrl("/recipes/complete_recipe/" + recipeId, HttpManager.manager.host, HttpManager.manager.port);
+        StartCoroutine(HttpManager.SendRequest(type: "POST", new { }, url, CompleteRecipeSuccess));
+    }
+    void CompleteRecipeSuccess(string text)
+    {
+        print(text);
+        HttpManager.manager.CubeIt(text);
+        RefreshActiveRecipes();
+    }
+
+
     public void RefreshItems(List<ActiveRecipe> newItems)
     {
         items = newItems;

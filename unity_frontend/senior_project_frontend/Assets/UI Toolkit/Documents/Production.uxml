@@ -6,10 +6,5 @@
             <ui:Button text="Refresh List" display-tooltip-when-elided="true" name="RefreshButton" />
             <ui:ListView focusable="true" name="ActiveRecipesList" fixed-item-height="36" virtualization-method="DynamicHeight" />
         </ui:VisualElement>
-        <ui:VisualElement name="CompletableRecipes" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
-            <ui:Label tabindex="-1" text="Completable Recipes" display-tooltip-when-elided="true" name="Label" style="color: rgb(255, 255, 255);" />
-            <ui:Button text="Refresh List" display-tooltip-when-elided="true" name="RefreshButton" />
-            <ui:ListView focusable="true" name="CompletableRecipesList" fixed-item-height="36" virtualization-method="DynamicHeight" />
-        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

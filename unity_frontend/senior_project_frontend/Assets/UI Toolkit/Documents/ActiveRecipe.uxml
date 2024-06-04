@@ -1,7 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="ActiveRecipe" style="flex-grow: 1; background-color: rgba(253, 253, 253, 0.53);">
-        <ui:Label tabindex="-1" text="Billy" display-tooltip-when-elided="true" name="Item" />
+        <ui:TextField picking-mode="Ignore" label="Item" value="brogir" name="ItemField" />
         <ui:IntegerField label="amount" value="42" name="AmountField" readonly="false" />
-        <ui:Label tabindex="-1" text="Billy" display-tooltip-when-elided="true" name="Employee" />
+        <ui:TextField picking-mode="Ignore" label="Employee" value="anastasia" name="EmployeeField" />
+        <ui:IntegerField label="recipe id" value="42" name="IdField" readonly="false" />
+        <ui:Toggle label="Is Ready?" name="IsReadyToggle" />
+        <ui:Button text="Finish Recipe!" display-tooltip-when-elided="true" name="CompleteButton" />
     </ui:VisualElement>
 </ui:UXML>
