@@ -76,6 +76,24 @@ async def post_create_game_instance(name: str):
                         ],
                     )
 
+                    # add resources to the world
+                    resources = ["Wood Resource", "Brick Resource"]
+
+                    connection.execute(
+                        sqlalchemy.text(
+                            """INSERT INTO world_resources
+                                (world_id, item_id)
+                                (
+                                    SELECT :wid as world_id,
+                                        items.id as item_id
+                                    FROM items
+                                    WHERE items.name = :resource
+                                )
+                            """
+                        ),
+                        [{"wid": world_id, "resource": name} for name in resources],
+                    )
+
                     return JSONResponse(
                         content={"game_id": game_id},
                         status_code=200,
