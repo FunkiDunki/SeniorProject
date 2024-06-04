@@ -3,6 +3,7 @@ from datetime import timedelta
 import sqlalchemy
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy.exc import DBAPIError
 from src import database as db
 
@@ -135,8 +136,15 @@ async def post_complete_recipe(task_id: int):
         print(f"Error returned: <<<{error}>>>")
 
 
-@router.post("/create_recipe/{recipe_id}")
-async def post_begin_recipe(recipe_id: int, empl_id: int):
+class RecipeCreate(BaseModel):
+    recipe_id: int
+    employee_id: int
+
+
+@router.post("/create_recipe")
+async def post_begin_recipe(recipe_create: RecipeCreate):
+    recipe_id = recipe_create.recipe_id
+    empl_id = recipe_create.employee_id
     try:
         with db.engine.begin() as connection:
             valids = connection.execute(
