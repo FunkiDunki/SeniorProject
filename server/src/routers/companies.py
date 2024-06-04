@@ -89,6 +89,23 @@ async def post_new_company(inst_id: int, company: Company):
                 {"cid": comp_info["id"], "change": change},
             )
 
+            # add the world resource items to inventory
+            connection.execute(
+                sqlalchemy.text(
+                    """INSERT INTO item_ledger
+                        (company_id, item_id, change)
+                        (
+                            SELECT :cid,
+                                world_resources.item_id as item_id,
+                                0
+                            FROM worlds
+                            JOIN world_resources on worlds.id = world_resources.world_id
+                            where worlds.game = :gid
+                        )"""
+                ),
+                {"cid": comp_info["id"], "gid": inst_id},
+            )
+
             # return company information if we make it here
             return comp_info
     except DBAPIError as error:
