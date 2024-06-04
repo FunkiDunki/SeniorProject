@@ -93,3 +93,41 @@ async def post_new_company(inst_id: int, company: Company):
             return comp_info
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+
+
+@router.get("/{company_id}/inventory")
+async def get_company_inventory(company_id: int):
+    try:
+        with db.engine.begin() as connection:
+            # query inventory for all items and their amounts
+            result = connection.execute(
+                sqlalchemy.text(
+                    """SELECT items.id as id,
+                            items.name as name,
+                            SUM(change) as amount
+                        FROM item_ledger
+                        JOIN items on item_ledger.item_id = items.id
+                        WHERE item_ledger.company_id = :cid
+                        GROUP BY items.id, items.name
+                    """
+                ),
+                {"cid": company_id},
+            ).all()
+
+            inventory_items = []
+            for row in result:
+                inventory_items.append(
+                    {
+                        "id": row.id,
+                        "name": row.name,
+                        "amount": row.amount,
+                    }
+                )
+            # return inventory
+            response = JSONResponse(
+                content={"items": inventory_items},
+                status_code=200,
+            )
+            return response
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
