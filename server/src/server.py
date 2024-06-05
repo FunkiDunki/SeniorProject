@@ -3,9 +3,14 @@ from random import Random
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from src.routers import (companies, employee_endpoints,
-                         game_instance_endpoints, market, recipe_endpoints,
-                         world_graph_endpoints)
+from src.routers import (
+    companies,
+    employee_endpoints,
+    game_instance_endpoints,
+    market,
+    recipe_endpoints,
+    world_graph_endpoints
+)
 
 PORT = 11000
 HOST = "localhost"
