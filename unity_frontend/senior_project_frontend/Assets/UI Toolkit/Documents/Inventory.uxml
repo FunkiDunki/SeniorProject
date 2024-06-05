@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Inventory" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.46); flex-direction: column; left: 0; border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px; border-left-color: rgba(255, 255, 255, 0.94); border-right-color: rgba(255, 255, 255, 0.94); border-top-color: rgba(255, 255, 255, 0.94); border-bottom-color: rgba(255, 255, 255, 0.94); flex-shrink: 1;">
+        <ui:Label tabindex="-1" text="Inventory" display-tooltip-when-elided="true" style="font-size: 50%; color: rgb(255, 255, 255);" />
+        <ui:VisualElement name="ItemSaleSection" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: space-between; min-height: 25%;">
+            <ui:Label tabindex="-1" text="Selling Stuff" display-tooltip-when-elided="true" style="font-size: 14px; color: rgb(255, 255, 255);" />
+        </ui:VisualElement>
+        <ui:VisualElement name="ItemlistSection" style="flex-grow: 0.8; background-color: rgba(0, 0, 0, 0);">
+            <ui:Label tabindex="-1" text="Items" display-tooltip-when-elided="true" style="color: rgb(255, 255, 255);" />
+            <ui:Button text="Refresh List" display-tooltip-when-elided="true" name="RefreshButton" />
+            <ui:ListView focusable="true" name="ItemsList" fixed-item-height="36" virtualization-method="DynamicHeight" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
