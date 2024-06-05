@@ -3,6 +3,7 @@
     <ui:Template name="Employees" src="project://database/Assets/UI%20Toolkit/Documents/Employees.uxml?fileID=9197481963319205126&amp;guid=63687042b8e42464f961768de5d1b4ef&amp;type=3#Employees" />
     <ui:Template name="Competition" src="project://database/Assets/UI%20Toolkit/Documents/Competition.uxml?fileID=9197481963319205126&amp;guid=8aa2656563c071a4db2bf5fec2c6e392&amp;type=3#Competition" />
     <ui:Template name="Production" src="project://database/Assets/UI%20Toolkit/Documents/Production.uxml?fileID=9197481963319205126&amp;guid=9ac338ecf08f3b44faf5bff16c98a4ae&amp;type=3#Production" />
+    <ui:Template name="Inventory" src="project://database/Assets/UI%20Toolkit/Documents/Inventory.uxml?fileID=9197481963319205126&amp;guid=da70931992f9f514b927bb099c67a0af&amp;type=3#Inventory" />
     <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); height: 224px; flex-shrink: 0;">
         <ui:Label tabindex="-1" text="Unicorn Blood" display-tooltip-when-elided="true" style="font-size: 36px; color: rgb(255, 255, 255); -unity-text-align: upper-center; width: 40%; align-items: stretch; align-self: center; background-color: rgba(0, 0, 0, 0.53); -unity-text-outline-color: rgb(255, 255, 255); -unity-text-outline-width: 0; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px; height: 25%;" />
         <ui:Instance template="GameInstance" name="GameInstance" style="width: 30%; align-self: center; flex-grow: 0; height: 75%; flex-shrink: 0; justify-content: center; align-items: center;" />
@@ -11,5 +12,6 @@
         <ui:Instance template="Employees" name="Employees" style="flex-grow: 1; width: 100%; height: 100%;" />
         <ui:Instance template="Competition" name="Competition" style="flex-grow: 1; width: 100%; height: 100%;" />
         <ui:Instance template="Production" name="Production" style="height: 100%; width: 100%;" />
+        <ui:Instance template="Inventory" name="Inventory" style="width: 100%; height: 100%;" />
     </ui:VisualElement>
 </ui:UXML>
