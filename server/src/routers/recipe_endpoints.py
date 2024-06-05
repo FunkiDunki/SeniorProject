@@ -260,3 +260,107 @@ async def post_begin_recipe(recipe_create: RecipeCreate):
         }
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+
+
+@router.get("/recipe_cost/{recipe_id}")
+async def get_recipe_cost(recipe_id: int):
+    try:
+        with db.engine.begin() as connection:
+            result = connection.execute(
+                sqlalchemy.text(
+                    """SELECT items.id as id,
+                        items.name as name,
+                        recipe_items.quantity as quantity
+                        FROM recipe_items JOIN items
+                        ON recipe_items.item_id = items.id
+                        WHERE recipe_items.recipe_id = :rid"""
+                ),
+                {"rid": recipe_id},
+            ).all()
+
+            items = []
+
+            for row in result:
+                items.append(
+                    {
+                        "name": row.name,
+                        "id": row.id,
+                        "quantity": row.quantity,
+                    }
+                )
+
+            return JSONResponse(
+                content={"items": items},
+                status_code=200,
+            )
+
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+
+@router.get("/available_recipes/{company_id}")
+async def get_available_recipes(company_id: int):
+    try:
+        # find format that we want
+        # {available_recipes: [{recipe_id, out_item_id, out_item_name, out_item_quantity}]}
+
+        # select statement to get rows
+
+        # go through result to create list
+
+        # return result
+        with db.engine.begin() as connection:
+            result = connection.execute(
+                sqlalchemy.text(
+                    """WITH available_items as (
+                            SELECT item_ledger.item_id as id,
+                                SUM(item_ledger.change) as amount
+                                FROM item_ledger
+                                WHERE company_id = :cid
+                                GROUP BY item_id
+                        ), checks_passed as (
+                            SELECT COUNT(*) as passed,
+                                recipe_items.recipe_id as recipe_id
+                                FROM recipe_items LEFT JOIN available_items
+                                ON recipe_items.item_id = available_items.id
+                                WHERE recipe_items.quantity <= available_items.amount
+                                GROUP BY recipe_items.recipe_id
+                        ), checks_required as (
+                            SELECT COUNT(*) as needed,
+                                recipe_id
+                            FROM recipe_items
+                            GROUP BY recipe_id
+                        )
+                        SELECT recipes.id as recipe_id,
+                            items.name as out_item_name,
+                            items.id as out_item_id,
+                            recipes.output_quantity as out_item_quantity
+                            FROM recipes JOIN checks_passed
+                            ON checks_passed.recipe_id = recipes.id
+                            JOIN checks_required
+                            ON checks_required.recipe_id = recipes.id
+                            JOIN items ON items.id = recipes.output_id
+                            WHERE checks_required.needed <= checks_passed.passed"""
+                ),
+                {"cid": company_id},
+            ).all()
+
+            available_recipes = []
+
+            for row in result:
+                available_recipes.append(
+                    {
+                        "recipe_id": row.recipe_id,
+                        "out_item_id": row.out_item_id,
+                        "out_item_name": row.out_item_name,
+                        "out_item_quantity": row.out_item_quantity,
+                    }
+                )
+
+            return JSONResponse(
+                content={"available_recipes": available_recipes},
+                status_code=200,
+            )
+
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
