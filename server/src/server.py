@@ -9,7 +9,7 @@ from src.routers import (
     game_instance_endpoints,
     market,
     recipe_endpoints,
-    world_graph_endpoints
+    world_graph_endpoints,
 )
 
 PORT = 11000
