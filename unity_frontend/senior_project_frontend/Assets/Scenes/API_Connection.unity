@@ -480,7 +480,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   document: {fileID: 195380056}
-  itemTemplate: {fileID: 9197481963319205126, guid: e3ffeaa8e46083c4d8dbb8453234555d, type: 3}
+  activeRecipeItemTemplate: {fileID: 9197481963319205126, guid: e3ffeaa8e46083c4d8dbb8453234555d, type: 3}
+  availableRecipeItemTemplate: {fileID: 9197481963319205126, guid: e987fa35f7db9264bbea0a6e34406178, type: 3}
+  itemCostTemplate: {fileID: 9197481963319205126, guid: 21d3e840df3ce5c49b9da7a3030c3636, type: 3}
 --- !u!114 &195380063
 MonoBehaviour:
   m_ObjectHideFlags: 0
