@@ -4,9 +4,9 @@
         <ui:VisualElement name="StartRecipeSection" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: space-between; height: 10%;">
             <ui:Label tabindex="-1" text="Starting Recipes" display-tooltip-when-elided="true" style="font-size: 14px; color: rgb(255, 255, 255);" />
             <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between;">
-                <ui:IntegerField label="Recipe Id" value="42" name="RecipeIdField" style="-unity-text-align: middle-center;" />
-                <ui:IntegerField label="Employee Id" value="42" name="EmployeeIdField" />
-                <ui:Button text="Start Cookin up a Storm" display-tooltip-when-elided="true" name="StartRecipeButton" />
+                <ui:IntegerField label="Recipe Id" value="42" name="RecipeIdField" style="-unity-text-align: middle-center; color: rgb(0, 0, 0); -unity-text-outline-color: rgba(0, 0, 0, 0); background-color: rgba(118, 118, 118, 0.67);" />
+                <ui:IntegerField label="Employee Id" value="42" name="EmployeeIdField" style="background-color: rgba(118, 118, 118, 0.67);" />
+                <ui:Button text="Start Cookin up a Storm" display-tooltip-when-elided="true" name="StartRecipeButton" style="height: 3%;" />
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="ActiveRecipes" style="flex-grow: 0.8; background-color: rgba(0, 0, 0, 0); height: 25%;">
@@ -22,7 +22,7 @@
         <ui:VisualElement name="RecipeCost" style="flex-grow: 0.8; background-color: rgba(0, 0, 0, 0); height: 30%;">
             <ui:Label tabindex="-1" text="Recipe Cost" display-tooltip-when-elided="true" style="color: rgb(255, 255, 255);" />
             <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 10%;">
-                <ui:IntegerField label="Recipe Id" value="42" name="RecipeIdField" />
+                <ui:IntegerField label="Recipe Id" value="42" name="RecipeIdField" style="background-color: rgba(118, 118, 118, 0.67);" />
                 <ui:Button text="Refresh List" display-tooltip-when-elided="true" name="RefreshButton" />
             </ui:VisualElement>
             <ui:ListView focusable="true" name="RecipeCostList" fixed-item-height="36" virtualization-method="DynamicHeight" style="flex-grow: 1; height: 60%;" />

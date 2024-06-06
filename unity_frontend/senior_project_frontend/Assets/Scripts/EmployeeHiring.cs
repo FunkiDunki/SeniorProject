@@ -73,8 +73,12 @@ public class EmployeeHiring : MonoBehaviour
 
     void AttemptToHire()
     {
-        string url = HttpManager.EndpointToUrl("/employees", HttpManager.manager.host, HttpManager.manager.port);
-        StartCoroutine(HttpManager.PostRequest(new { }, url, WeGotAnEmployee));
+        if (!GameInstanceScript.hasCompanyId)
+        {
+            return;
+        }
+        string url = HttpManager.EndpointToUrl("/employees/" + GameInstanceScript.companyId, HttpManager.manager.host, HttpManager.manager.port);
+        StartCoroutine(HttpManager.SendRequest("POST", new { }, url, WeGotAnEmployee));
     }
 
     void WeGotAnEmployee(string text)
@@ -82,7 +86,7 @@ public class EmployeeHiring : MonoBehaviour
         print(text);
         HttpManager.manager.CubeIt(text);
         EmployeePacket employee = EmployeePacket.CreateFromJson(text);
-        UIListScript.ItemData data = new UIListScript.ItemData { name= employee.name, salary= employee.salary, morale = employee.morale};
+        UIListScript.ItemData data = new UIListScript.ItemData { id=employee.id, name= employee.name, salary= employee.salary, morale = employee.morale};
         employeeList.AddItem(data);
     }
     // Update is called once per frame

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Market" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.46); flex-direction: column; left: 0; border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px; border-left-color: rgba(255, 255, 255, 0.94); border-right-color: rgba(255, 255, 255, 0.94); border-top-color: rgba(255, 255, 255, 0.94); border-bottom-color: rgba(255, 255, 255, 0.94); flex-shrink: 1;">
+        <ui:Label tabindex="-1" text="Market" display-tooltip-when-elided="true" style="font-size: 50%; color: rgb(255, 255, 255);" />
+        <ui:IntegerField label="Item Id" value="42" name="ItemIdField" />
+        <ui:IntegerField label="Amount To Sell" value="42" name="ItemAmountField" />
+        <ui:IntegerField label="Price of One" value="42" name="PriceField" readonly="true" />
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between; align-self: center; align-items: flex-start;">
+            <ui:Button text="Check Price" display-tooltip-when-elided="true" name="CheckPriceButton" />
+            <ui:Button text="Sell!" display-tooltip-when-elided="true" name="SellButton" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
