@@ -23,3 +23,7 @@ class Recipe:
     timeRequired: List[Tuple[str, int]]
     outputID: int  # the id for the new item produced by the recipe
     outputAmt: int  # the amount of new items this recipe produces
+
+
+def calculate_production_time() -> float:
+    return 5;
