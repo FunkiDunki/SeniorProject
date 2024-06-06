@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.exc import DBAPIError
 from src import database as db
+from src.datas import recipe as rc
 
 router = APIRouter(
     prefix="/recipes",
@@ -364,3 +365,13 @@ async def get_available_recipes(company_id: int):
 
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+
+
+@router.get("/{company_id}/{recipe_id}")
+async def get_recipe_production_time(company_id: int, empl_id: int):
+    recipe_time = rc.calculate_production_time()
+
+    return JSONResponse(
+        content={"production_time": recipe_time},
+        status_code=200,
+    )
