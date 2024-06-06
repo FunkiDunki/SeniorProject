@@ -26,4 +26,4 @@ class Recipe:
 
 
 def calculate_production_time() -> float:
-    return 5;
+    return 5
