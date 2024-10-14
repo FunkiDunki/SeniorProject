@@ -1,68 +1,54 @@
 import requests
 import json
 from mapwalker_data import World, Node, Edge, Player
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import random
 import sys
 from pydantic import BaseModel
+from openai import OpenAI
+import textwrap
 
 # The URL where the local server is running
-url = "http://localhost:1234/v1/chat/completions"
+url = "http://localhost:1234/v1/"
+MODEL = "mathstral-7b-v0.1"
 
 # The headers to indicate that we are sending JSON data
 headers = {
     "Content-Type": "application/json"
 }
 
-def testing_structered():
-    {
-        "name": "ui",
-        "description": "Dynamically generated UI",
-        "strict": true,
-        "schema": {
-            "type": "object",
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "description": "The type of the UI component",
-                    "enum": ["div", "button", "header", "section", "field", "form"]
-                },
-                "label": {
-                    "type": "string",
-                    "description": "The label of the UI component, used for buttons or form fields"
-                },
-                "children": {
-                    "type": "array",
-                    "description": "Nested UI components",
-                    "items": {
-                        "$ref": "#"
-                    }
-                },
-                "attributes": {
-                    "type": "array",
-                    "description": "Arbitrary attributes for the UI component, suitable for any element",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "The name of the attribute, for example onClick or className"
-                            },
-                            "value": {
-                                "type": "string",
-                                "description": "The value of the attribute"
-                            }
-                        },
-                      "additionalProperties": false,
-                      "required": ["name", "value"]
-                    }
-                }
-            },
-            "required": ["type", "label", "children", "attributes"],
-            "additionalProperties": false
-        }
-    }
+client = OpenAI(base_url=url, api_key="lm-studio")
 
+class OptionalFormat(BaseModel):
+    value: Union[int, List[str]]
+def testing_structered():
+
+    messages = [
+        {
+            "role": "system",
+            "content": "either return a list of names, or a number, depending on what the user asks for."
+        },
+        {
+            "role": "user",
+            "content": "give me a number"
+        }
+    ]
+
+    response = client.beta.chat.completions.parse(
+        model=MODEL,
+        messages=messages,
+        response_format= OptionalFormat
+    ).choices[0].message.parsed
+
+    if isinstance(response, OptionalFormat):
+        print(response.value)
+
+    return
+
+class NodeGenerateFormat(BaseModel):
+    node_description: str
+    outgoing_connections: List[str]
+    
 def node_generate(node_id: str, world: World) -> Tuple[Node, List[str]]:
     '''input: name of node
         output: description,
@@ -77,101 +63,99 @@ def node_generate(node_id: str, world: World) -> Tuple[Node, List[str]]:
             {"role": "system", "content": f"name of node: {node_id}"},
             {"role": "user", "content": "Generate and return information for a new node with the given name"}
         ],
-        "response_format": {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "new_node_response",
-                "strict": "true",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "node_description": {
-                            "type": "string"
-                        },
-                        "outgoing_connections": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "required": ["node_description", "outgoing_connections"]
-            }
-        },
         "temperature": 0.5,
         "max_tokens": -1,
         "stream": False
     }
 
     # Making the POST request to the local server
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    #response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = client.beta.chat.completions.parse(
+        model=MODEL,
+        messages=data['messages'],
+        response_format= NodeGenerateFormat,
+        temperature= data['temperature']
+    )
+    response = response.choices[0].message.parsed
 
     # Checking if the request was successful
-    if response.status_code == 200:
+    if isinstance(response, NodeGenerateFormat):
         # Printing the response content
-        response = response.json()['choices'][0]['message']
-        #print(response)
-        response = json.loads(response['content'])
-        node = Node(node_id, response['node_description'])
-        outgoings = response['outgoing_connections'][:num_new]
+        node = Node(node_id, response.node_description)
+        outgoings = response.outgoing_connections[:num_new]
         return (node, outgoings)
     else:
-        print("Failed to get response:", response.status_code, response.text)
+        print("Failed to get response")
         return None
 
+class NodeMoveResponse(BaseModel):
+    node_id: str
+
+class NodeInteractResponse(BaseModel):
+    event_description: str
+    node_change: str
+
+class ParsedChoiceResponse(BaseModel):
+    player_choice: Union[NodeMoveResponse, NodeInteractResponse, None]
+
 def understand_input(current_world: World, player: Player, user_prompt: str):
-    #for now, everything would be a move command
-    # The JSON data payload
+
     print("Crunching numbas....\n")
-    possible_nodes = {
-        "possible_nodes": valid_locations(player.location, current_world.edges)
+
+    cur_node = world.nodes[player.location]
+    #tell the model which nodes could be moved to
+    relevant_lore = {
+        "possible_nodes": valid_locations(player.location, current_world.edges),
+        "current_node": {
+            "node_id": cur_node.node_id,
+            "node_description": cur_node.node_description
+        }
     }
-    possible_nodes['possible_nodes'].append("other")
     #print(possible_nodes)
 
     data = {
+        "model": MODEL,
         "messages": [
-            {"role": "system", "content": "Given the current world as json input. Assume the user wants to move to one of the listed nodes. Return the id of the node exactly as it appears in the list. Select other if the previous options don't apply to the prompt."},
-            {"role": "system", "content": json.dumps(possible_nodes)},
+            {"role": "system", "content": textwrap.dedent("""
+                The player is in the current node. \
+                Either return the id of the node the player moves to, or a description of the event requested and a description of the node after the event. \
+                Unless the user definitely wants to move to another node, always prefer returning an event description.""")},
+            {"role": "system", "content": json.dumps(relevant_lore)},
             {"role": "user", "content": user_prompt}
         ],
-        "response_format": {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "node_move_response",
-                "strict": "true",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "node_id": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "required": ["node_id"]
-            }
-        },
-        "temperature": 0.1,
-        "max_tokens": -1,
-        "stream": False
+        "temperature": 0.3,
     }
 
     # Making the POST request to the local server
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    #response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = client.beta.chat.completions.parse(
+        model=MODEL,
+        messages=data["messages"],
+        response_format= ParsedChoiceResponse,
+        temperature=0.1
+    )
+
+    response = response.choices[0].message.parsed
+
+    if response is None:
+        print("failed response")
+        return None
+
+    #if it worked, we have a player choice
+    response = response.player_choice
 
     # Checking if the request was successful
-    if response.status_code == 200:
-        # Printing the response content
-        response = response.json()['choices'][0]['message']
-        #print(response)
-        response = json.loads(response['content'])['node_id']
-        #print(response)
-        if response not in possible_nodes['possible_nodes'][:-1]:
+    if isinstance(response, NodeMoveResponse):
+        print(response)
+        new_node = response.node_id
+        if new_node not in relevant_lore["possible_nodes"]:
             return None
         return response
+    elif isinstance(response, NodeInteractResponse):
+        print(response)
+        return response
     else:
-        print("Failed to get response:", response.status_code, response.text)
+        print("Failed to get response")
         return None
 
 def valid_locations(from_id: str, edge_list: List[Edge]) -> List[str]:
@@ -184,11 +168,11 @@ def valid_locations(from_id: str, edge_list: List[Edge]) -> List[str]:
 def main(player=None, world=None):
 
     #default adventure
-    nodes = [
-        Node("forest_1", "dark forest"),
-        Node("forest_2", "dark forest"),
+    nodes = {
+        "forest_1": Node("forest_1", "dark forest"),
+        "forest_2": Node("forest_2", "dark forest"),
         #Node("forest_well", "a clearing in the dark forest, with a stone well"),
-    ]
+    }
     edges = [
         Edge("forest_1", "forest_2"),
         Edge("forest_2", "forest_well"),
@@ -206,20 +190,18 @@ def main(player=None, world=None):
     while True:
         print(f"you are in {player.location}")
 
-        if player.location not in [n.node_id for n in world.nodes]:
+        if player.location not in world.nodes:
             #we need to generate the node
             (n, o) = node_generate(player.location, world)
             #print(n)
             #print(o)
-            world.nodes.append(n)
+            world.nodes[player.location] = n
             for n2 in o:
-                world.edges.append(Edge(n.node_id, n2))
-                world.edges.append(Edge(n2, n.node_id))
+                if n2 not in world.nodes:
+                    world.edges.append(Edge(n.node_id, n2))
+                    world.edges.append(Edge(n2, n.node_id))
         
-        for n in world.nodes:
-            if n.node_id == player.location:
-                print(f"Description: {n.node_description}")
-                break
+        print(world.nodes[player.location].node_description)
 
         #where we could go next
         print("\nAround you are the following locations:")
@@ -229,10 +211,15 @@ def main(player=None, world=None):
         prompt = input("\n>> ")
 
         #find the next node to go to
-        new_node = understand_input(world, player, prompt)
-        if new_node is not None:
+        result = understand_input(world, player, prompt)
+        if isinstance(result, NodeMoveResponse):
             #print(f"You moved to {new_node}.")
-            player.location = new_node
+            player.location = result.node_id
+        elif isinstance(result, NodeInteractResponse):
+            #print what happened:
+            print(result.event_description)
+            world.nodes[player.location].node_description = result.node_change
+           
         else:
             print("Sorry, but that wasn't a valid move nearby.")
 
@@ -240,7 +227,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         player = Player("Start")
         world = World(
-            nodes= [ Node(node_id="Start", node_description="Anything could happen!") ],
+            nodes= {"Start": Node(node_id="Start", node_description="Anything could happen!") },
             edges= [ Edge("Start", sys.argv[1])]
         )
         main(player, world)

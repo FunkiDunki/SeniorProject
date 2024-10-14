@@ -14,7 +14,7 @@ class Edge:
 
 @dataclass
 class World:
-    nodes: List[Node]
+    nodes: dict[str, Node]
     edges: List[Edge]
 
 @dataclass
