@@ -91,18 +91,12 @@ def node_generate(node_id: str, world: World) -> Tuple[Node, List[str]]:
 class NodeMoveResponse(BaseModel):
     node_id: str
 
-class NodeInteractResponse(BaseModel):
-    event_description: str
-    node_change: str
-
-class ParsedChoiceResponse(BaseModel):
-    player_choice: Union[NodeMoveResponse, NodeInteractResponse, None]
-
-def understand_input(current_world: World, player: Player, user_prompt: str):
+def decypher_move(current_world: World, player: Player, user_prompt: str) -> NodeMoveResponse:
+    '''where does the player want to move to'''
 
     print("Crunching numbas....\n")
 
-    cur_node = world.nodes[player.location]
+    cur_node = current_world.nodes[player.location]
     #tell the model which nodes could be moved to
     relevant_lore = {
         "possible_nodes": valid_locations(player.location, current_world.edges),
@@ -118,8 +112,118 @@ def understand_input(current_world: World, player: Player, user_prompt: str):
         "messages": [
             {"role": "system", "content": textwrap.dedent("""
                 The player is in the current node. \
-                Either return the id of the node the player moves to, or a description of the event requested and a description of the node after the event. \
-                Unless the user definitely wants to move to another node, always prefer returning an event description.""")},
+                Decide which of the available locations the player is trying to move to. return 'other' if the command doesnt match any of the available locations.""")},
+            {"role": "system", "content": json.dumps(relevant_lore)},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": 0.3,
+    }
+
+    # Making the POST request to the local server
+    #response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = client.beta.chat.completions.parse(
+        model=MODEL,
+        messages=data["messages"],
+        response_format= NodeMoveResponse,
+        temperature=0.1
+    )
+
+    response = response.choices[0].message.parsed
+
+    # Checking if the request was successful
+    if isinstance(response, NodeMoveResponse):
+        print(response)
+        new_node = response.node_id
+        if new_node not in relevant_lore["possible_nodes"]:
+            return None
+        return response
+    else:
+        print("Failed to get response")
+        return None
+
+
+class NodeInteractResponse(BaseModel):
+    event_description: str
+    node_description: str
+
+
+
+def decypher_interaction(current_world: World, player: Player, user_prompt: str) -> NodeInteractResponse:
+    '''What does the player want to do?'''
+
+    print("Crunching numbas....\n")
+
+    cur_node = current_world.nodes[player.location]
+    #tell the model which nodes could be moved to
+    relevant_lore = {
+        "current_node": {
+            "node_id": cur_node.node_id,
+            "node_description": cur_node.node_description
+        }
+    }
+    #print(possible_nodes)
+
+    data = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": textwrap.dedent("""
+                The player is in the current node. \
+                Decide how to player is trying to interact with the node, and determine what reasonable would happen. \
+                Return a description of the event. If the event changes the nodes significantly, return a new description of the node. \
+                Otherwise, return an empty description of the node.""")},
+            {"role": "system", "content": json.dumps(relevant_lore)},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": 0.3,
+    }
+
+    # Making the POST request to the local server
+    #response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = client.beta.chat.completions.parse(
+        model=MODEL,
+        messages=data["messages"],
+        response_format= NodeInteractResponse,
+        temperature=0.5
+    )
+
+    response = response.choices[0].message.parsed
+
+    # Checking if the request was successful
+    if isinstance(response, NodeInteractResponse):
+        #print(response)
+        return response
+    else:
+        print("Failed to get response")
+        return None
+
+
+
+class ParsedChoiceResponse(BaseModel):
+    choice_type: str 
+
+def understand_input(current_world: World, player: Player, user_prompt: str) -> str:
+    '''find out if the player is trying to move or interact'''
+
+    print("Crunching numbas....\n")
+
+    cur_node = current_world.nodes[player.location]
+    #tell the model which nodes could be moved to
+    relevant_lore = {
+        "choice_types": ['move', 'interact', 'other'],
+        "current_node": {
+            "node_id": cur_node.node_id,
+            "node_description": cur_node.node_description
+        }
+    }
+    #print(possible_nodes)
+
+    data = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": textwrap.dedent("""
+                The player is in the current node. \
+                Decide whether the player wants to move to another node, or interact with the current node (or anything inside the current node). \
+                return one of the given choice types. Return 'other' if the input did not make sense""")},
             {"role": "system", "content": json.dumps(relevant_lore)},
             {"role": "user", "content": user_prompt}
         ],
@@ -137,23 +241,14 @@ def understand_input(current_world: World, player: Player, user_prompt: str):
 
     response = response.choices[0].message.parsed
 
-    if response is None:
-        print("failed response")
-        return None
-
-    #if it worked, we have a player choice
-    response = response.player_choice
-
     # Checking if the request was successful
-    if isinstance(response, NodeMoveResponse):
+    if isinstance(response, ParsedChoiceResponse):
         print(response)
-        new_node = response.node_id
-        if new_node not in relevant_lore["possible_nodes"]:
+        pc = response.choice_type
+        if pc != "other" and pc in relevant_lore["choice_types"]:
+            return pc
+        else:
             return None
-        return response
-    elif isinstance(response, NodeInteractResponse):
-        print(response)
-        return response
     else:
         print("Failed to get response")
         return None
@@ -188,7 +283,7 @@ def main(player=None, world=None):
         player = Player("forest_1")
 
     while True:
-        print(f"you are in {player.location}")
+        print(f"you are in {player.location}\n")
 
         if player.location not in world.nodes:
             #we need to generate the node
@@ -211,15 +306,25 @@ def main(player=None, world=None):
         prompt = input("\n>> ")
 
         #find the next node to go to
-        result = understand_input(world, player, prompt)
-        if isinstance(result, NodeMoveResponse):
+        pc = understand_input(world, player, prompt)
+
+        if pc == 'move':
             #print(f"You moved to {new_node}.")
-            player.location = result.node_id
-        elif isinstance(result, NodeInteractResponse):
+            result = decypher_move(world, player, prompt)
+            if isinstance(result, NodeMoveResponse):
+                player.location = result.node_id
+            else:
+                print("invalid move command")
+        elif pc == 'interact':
             #print what happened:
-            print(result.event_description)
-            world.nodes[player.location].node_description = result.node_change
-           
+            print("you try to interact with the node:")
+            result = decypher_interaction(world, player, prompt)
+            if isinstance(result, NodeInteractResponse):
+                print(f"{result.event_description}\n")
+                if result.node_description != "":
+                    world.nodes[player.location].node_description = result.node_description
+            else:
+                print("invalid interaction")
         else:
             print("Sorry, but that wasn't a valid move nearby.")
 
