@@ -44,8 +44,8 @@ class PlayerCreationResponse(BaseModel):
     character_background: str
 
 class SingleInteractionResponse(BaseModel):
+    thought_process: str
     response_to_player: str
-    player_state: str
 
 #     -----classes for actually storing the data
 class SceneCompletion (BaseModel):
@@ -152,7 +152,7 @@ def generate_story_arcs(story_prompt: str = "") -> ArcCollectionResponse:
     response = call_llm_structured(arc_messages, ArcCollectionResponse)
     return response
 
-def generate_scene_plans(full_tree: NarrativeTree, arc_identifier: Tuple[int]) -> SceneCollectionResponse:
+def generate_scene_plans(full_tree: NarrativeTree, arc_identifier: Tuple[int], last_scene_history: str="No Scene History") -> SceneCollectionResponse:
     SCENE_GENERATE_PROMPT = textwrap.dedent(
         """
         You are a virtual Dungeon Master, \
@@ -164,7 +164,10 @@ def generate_scene_plans(full_tree: NarrativeTree, arc_identifier: Tuple[int]) -
         For each scene, give a name and a short description. \
         For each scene, focus mostly on where it is and what \
         npcs do. Try not to determine how the player would act. \
-        Prefer generating around 3 scenes.
+        Never assume how the player will act. Instead, focus on broad goals and where the scene takes place. \
+        Also given, is a history of the last scene in the previous arc. This is what has already happened. \
+        Make sure the first scene of this arc takes up where the story left off. \
+        Prefer generating between 2 and 4 scenes.
         """
     )
 
@@ -309,19 +312,19 @@ def play_planned_scene(
         Additionally, a description of a transition condition is given. \
         This is roughly what must happen for the player to get from the current scene \
         to the next scene. \
-        Also, there is a 'real_history' given. This is what has happened so far in the story. \
-        If there is a difference between previous planned events and the real_history, use the real_history as true. \
+        Also, there is a 'real_history' given. This is what has happened in the previous scene. \
+        Make sure to start this scene in a way that smoothly continues from the given history. \
         The player's background and current state are also given. \
         Your job is to act as the DM on this campaign, describing the current scene as the \
         player interacts with it. \
-        Let the player be creative and explore, but subtly and slowly guide them towards the scene \
-        transition conditions. \
+        Let the player be creative and explore, avoiding giving the player clear instructions or hints. \
         Do not push the player forward automatically. \
         Instead, make sure the player makes their own choices. \
-        Return an object containing what you want to say to the player, \
-        and the player's current state, which depends on their past state and the scene. \
-        If the players state doesn't change much, return the same state that was given in. \
         If there are no messages from the player, this means that the scene has just started. \
+        Perform chain-of-thought on this task, first considering why and how you want to respond and then responding. \
+        In the thinking portion, consider roughly how many interactions with the Player it should take to complete each scene. \
+        Make sure to include advice for how to conduct the scenes as a Dungeon Master. \
+        The output should be an object with the though process, followed by the response to the player.\
         """
     )
 
@@ -365,16 +368,19 @@ def play_planned_scene(
     ]
     messages = []
 
+    #result: SingleInteractionResponse = call_llm_structured(prompt_messages + messages, SingleInteractionResponse)
     result: SingleInteractionResponse = call_llm_structured(prompt_messages + messages, SingleInteractionResponse)
     
     #first of all, print response to user:
-    pretty_chat(result.response_to_player)
+    #pretty_chat(result.response_to_player)
+    #pretty_chat(result)
+    pprint(result)
 
     #add this response to our context
     messages.append(
         {
             "role": "assistant",
-            "content": result.model_dump_json() 
+            "content": result.model_dump_json()
         }
     )
 
@@ -392,17 +398,20 @@ def play_planned_scene(
     #next, determine if the scene is over:
     while(not is_scene_completed(messages, full_tree.arcs[arc_idx].scenes[scene_idx].scene_transition_condition)):
 
+        #result: SingleInteractionResponse = call_llm_structured(prompt_messages + messages, SingleInteractionResponse)
         result: SingleInteractionResponse = call_llm_structured(prompt_messages + messages, SingleInteractionResponse)
         
         #first of all, print response to user:
         print()
-        pretty_chat(result.response_to_player)
+        #pretty_chat(result.response_to_player)
+        #pretty_chat(result)
+        pprint(result)
 
         #add this response to our context
         messages.append(
             {
                 "role": "assistant",
-                "content": result.model_dump_json() 
+                "content": result.model_dump_json()
             }
         )
 
@@ -419,7 +428,7 @@ def play_planned_scene(
         )
 
     # when finished, get a summary of the scene for the next scene to use as context
-    exit_data.player_description = PlayerData(background=player_data.background, current_state=result.player_state)
+    exit_data.player_description = player_data
     exit_data.real_history = describe_scene_history(full_tree.arcs[arc_idx].scenes[scene_idx].scene_description, messages)
 
     return exit_data
@@ -506,7 +515,7 @@ def main(story_prompt: str, verbose: bool):
     for arc_idx in range(len(arcs.all_arcs)):
 
         #generate the scenes for this arc:
-        scene_plans = generate_scene_plans(narrative_tree, (arc_idx))
+        scene_plans = generate_scene_plans(narrative_tree, (arc_idx), real_history)
         if verbose:
             #try to print that out:
             print("Printing scene plans:")
