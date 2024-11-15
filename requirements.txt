@@ -3,5 +3,3 @@ fastapi
 sqlalchemy
 python-dotenv
 requests
-chromadb
-onnxruntime-gpu
