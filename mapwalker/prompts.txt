@@ -1,0 +1,18 @@
+Hidden Facts {
+    "permanent": [
+        {"id": 1, "fact": "The sky is red"},
+        {"id": 2, "fact": "The world has been in a war for 1000 years between evil and good"}
+    ],
+    "temporary": [
+        {"id": 1, "fact": "The player is talking to an evil sorcerer who is in hiding"},
+        {"id": 2, "fact": "The player is talking to an npc in the woods"}
+    ]
+}
+
+Known Facts {
+    "permanent": [2],
+    "temporary": [2 ]
+}
+
+Player action:
+I ask the npc what their name is.

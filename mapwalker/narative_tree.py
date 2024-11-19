@@ -15,7 +15,7 @@ from devtools import pprint
 
 # The URL where the local server is running
 url = "http://localhost:1234/v1/"
-MODEL = "qwen2.5-14b-instruct"
+MODEL = "mistral-nemo-instruct-2407"
 #get the client:
 client = OpenAI(base_url=url, api_key="lm-studio")
 
@@ -95,7 +95,7 @@ def update_schema(input_model: Type[BaseModel]) -> Dict[str, any]:
         }
     }
 
-def call_llm_structured(messages: List, model_format: Type[BaseModel], temperature=0.5):
+def call_llm_structured(messages: List, model_format: Type[BaseModel], temperature=0.8):
     '''
     Make api call to create an object with specified format, as a response from llm.
     '''
@@ -112,7 +112,7 @@ def call_llm_structured(messages: List, model_format: Type[BaseModel], temperatu
 
     return model_format.model_validate_json(response)
 
-def call_llm_unstructured(messages: List, temperature=0.5) -> str:
+def call_llm_unstructured(messages: List, temperature=0.8) -> str:
     '''
     Make api call to llm, for basic string
     '''
