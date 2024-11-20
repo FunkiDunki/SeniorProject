@@ -24,7 +24,7 @@ client = OpenAI(base_url=url, api_key="lm-studio")
 #prompt for user
 USR_CONSOLE_PROMPT = ">*&*> "
 
-NODE_COUNTER = 1
+NODE_COUNTER = 0
 
 # -------- Class Defnitions ---------
 
@@ -35,7 +35,8 @@ NODE_COUNTER = 1
 class SingleRegionResponse(BaseModel):
     name: str
     description: str
-    connection_to_history: str
+    derived_history: str
+    current_dynamics: str
     
 class RegionGenerateResponse(BaseModel):
     regions: List[SingleRegionResponse]
@@ -44,7 +45,8 @@ class RegionGenerateResponse(BaseModel):
 class SingleSubRegionResponse(BaseModel):
     name: str
     description: str
-    connection_to_history: str
+    derived_history: str
+    current_dynamics: str
     
 class SubRegionGenerateResponse(BaseModel):
     subregions: List[SingleSubRegionResponse]
@@ -55,7 +57,8 @@ class Node(BaseModel):
     node_id: int
     node_name: str
     node_description: str
-    connection_to_history: str
+    derived_history: str
+    current_dynamics: str
     outgoing_edges: List[int]
     children: List[int]
 
@@ -87,8 +90,9 @@ def generate_regions(world: World) -> World:
 
     prompt = (
         "For the following world, describe 2-6 overall regions that exist. "
-        "For each location, give a name and a paragraph description of the location. "
-        "Also, give a description of how that region connects to the overall history. "
+        "For each location, give a name and a physical description of key features of the location that might hint at the rich history. "
+        "Also, describe a derived history, which contains a summary of events from the world history that influenced the region. "
+        "Include also any relevant descriptions of current-day life in the region. "
     )
     messages = [
         {"role": "system", "content": "You are a designer of fantastic world, describing a world as the user desires."},
@@ -105,7 +109,8 @@ def generate_regions(world: World) -> World:
                 node_id=NODE_COUNTER,
                 node_name=region.name,
                 node_description=region.description,
-                connection_to_history=region.connection_to_history,
+                derived_history=region.derived_history,
+                current_dynamics=region.current_dynamics,
                 outgoing_edges=[],
                 children=[]
             )
@@ -124,23 +129,15 @@ def generate_cities(world: World) -> World:
         #the region has already been generated
         return world
     
-    regions_info = [
-        {
-            "name": world.all_nodes[region].node_name,
-            "description": world.all_nodes[region].node_description,
-            "connection_to_history": world.all_nodes[region].connection_to_history
-        }
-        for region in world.regions
-    ]
-
     #now actually generate the cities
     prompt = (
         f"based on the history of the world and the descriptions of the main regions, list 2-5 sub-locations that might exist within the region of {world.all_nodes[world.player.region_id].node_name}. "
-        "For each location, give a name and a paragraph description of the location. "
-        "Also, give a description of how that subregion connects to the region it exists within."
+        "For each location, give a name and a physical description of key features of the location that might hint at the rich history of the region it is in. "
+        "Also, describe a derived history, which contains a summary of any relevant events from the history of the region it is in. "
+        "Include also any relevant descriptions of current-day life in the subregion. "
         "Don't generate a subregion named after the region it is in. "
     )
-    info = get_relevant_information(world)
+    info = get_relevant_information(world, exclusions=["history"])
     messages = [
         {"role": "system", "content": "You are a designer of fantastic world, expanding on how the regions and subregions connect to the world's story."},
         {"role": "user", "content": prompt},
@@ -149,6 +146,7 @@ def generate_cities(world: World) -> World:
 
     result: SubRegionGenerateResponse = call_llm_structured(messages, SubRegionGenerateResponse) 
 
+    NODE_COUNTER = len(world.all_nodes)
     for city in result.subregions:
         world.all_nodes[world.player.region_id].children.append(NODE_COUNTER)
         world.all_nodes[NODE_COUNTER] = \
@@ -156,7 +154,8 @@ def generate_cities(world: World) -> World:
                 node_id=NODE_COUNTER,
                 node_name=city.name,
                 node_description=city.description,
-                connection_to_history=city.connection_to_history,
+                derived_history=city.derived_history,
+                current_dynamics=city.current_dynamics,
                 outgoing_edges=[],
                 children=[]
             )
@@ -170,10 +169,10 @@ def place_player_region(world: World) -> World:
     for i, region in enumerate(world.regions):
         print(f"\t({i+1}). {world.all_nodes[region].node_name}")
     
-    choice = input("Pick the number of a region to explore!")
+    choice = input("Pick the number of a region to explore!: ")
     while not (choice.isnumeric() and int(choice) >= 1 and int(choice) <= len(world.regions)):
         print("Whoops, that wasn't a valid choice!")
-        choice = input("Pick the number of a region to explore!")
+        choice = input("Pick the number of a region to explore!: ")
     
     choice = int(choice) - 1
     print(f"Okay! Let's explore {world.all_nodes[world.regions[choice]].node_name}!")
@@ -182,10 +181,14 @@ def place_player_region(world: World) -> World:
 
     return world
 
-def get_relevant_information(world: World) -> List[dict]:
+def get_relevant_information(world: World, exclusions: List[str] = []) -> List[dict]:
     '''based on the current state and location of player, get the relevant information for the model.'''
 
     result = []
+    if "history" not in exclusions:
+        result.append(
+            {"role": "user", "content": f"Here is the full history of the world: {world.history}"}
+        )
 
     if world.player.region_id != -1:
 
@@ -194,7 +197,8 @@ def get_relevant_information(world: World) -> List[dict]:
             {
                 "name": world.all_nodes[region].node_name,
                 "description": world.all_nodes[region].node_description,
-                "connection_to_history": world.all_nodes[region].connection_to_history
+                "connection_to_history": world.all_nodes[region].derived_history,
+                "current_dynamics": world.all_nodes[region].current_dynamics
             }
             for region in world.regions
         ]
@@ -211,7 +215,8 @@ def get_relevant_information(world: World) -> List[dict]:
                 {
                     "name": world.all_nodes[region].node_name,
                     "description": world.all_nodes[region].node_description,
-                    "connection_to_history": world.all_nodes[region].connection_to_history
+                    "connection_to_history_of_region": world.all_nodes[region].derived_history,
+                    "current_dynamics": world.all_nodes[region].current_dynamics
                 }
                 for region in world.all_nodes[world.player.region_id].children
             ]
@@ -233,10 +238,10 @@ def place_player_subregion(world: World) -> World:
     for i, subregion in enumerate(region.children):
         print(f"\t({i+1}). {world.all_nodes[subregion].node_name}")
     
-    choice = input("Pick the number of a subregion to explore!")
+    choice = input("Pick the number of a subregion to explore!: ")
     while not (choice.isnumeric() and int(choice) >= 1 and int(choice) <= len(region.children)):
         print("Whoops, that wasn't a valid choice!")
-        choice = input("Pick the number of a subregion to explore!")
+        choice = input("Pick the number of a subregion to explore!: ")
     
     choice = int(choice) -1
 
@@ -247,6 +252,7 @@ def place_player_subregion(world: World) -> World:
     return world
 
 def explore_subregion(world: World) -> World:
+    '''explore a subregion (looping behavior). Return when the player wants to move'''
 
     subregion = world.all_nodes[
         world.player.subregion_id
@@ -256,7 +262,7 @@ def explore_subregion(world: World) -> World:
         {
             "name": world.all_nodes[region].node_name,
             "description": world.all_nodes[region].node_description,
-            "connection_to_history": world.all_nodes[region].connection_to_history
+            "connection_to_history": world.all_nodes[region].derived_history
         }
         for region in world.regions
     ]
@@ -265,28 +271,65 @@ def explore_subregion(world: World) -> World:
         {
             "name": world.all_nodes[region].node_name,
             "description": world.all_nodes[region].node_description,
-            "connection_to_history": world.all_nodes[region].connection_to_history
+            "connection_to_history": world.all_nodes[region].derived_history
         }
         for region in world.all_nodes[world.player.region_id].children
     ]
 
+    relevant_info = get_relevant_information(world, exclusions=["history"])
+
     #describe the region
-    prompt = (
-        f"Describe the subregion of {subregion.node_name}, as if the player is just entering the subregion. "
-        "Truly paint the scene vividly, including all that the player might see. "
+    intro_prompt = (
+        "The player is a wandering traveler, trying to learn about various regions of the world. "
+        f"The player has entered the {subregion.node_name}. Describe the subregion as if the player is just entering the subregion. "
+        "Don't describe the full history of the region. Instead, focus on "
+        "Truly paint the scene vividly, including all that the player might see as they enter the region. "
     )
 
     messages = [
         {"role": "system", "content": "You are a storyteller, helping the player to explore the given world and discover its history."},
-        {"role": "user", "content": f"Here is the history of the world: {world.history}"},
-        {"role": "user", "content": f"Here are the main regions of the world: {regions_info}"},
-        {"role": "user", "content": f"The player is in the region of {world.all_nodes[world.player.region_id].node_name}."},
-        {"role": "user", "content": f"The region the player is in has subregions: {subregions_info}"},
-        {"role": "user", "content": prompt}
+        {"role": "system", "content": "As the Dungeon Master, provide vivid, immersive descriptions of the world and its events. Avoid explicitly prompting the player with ‘What would you like to do next?’ or listing possible actions. "},
+        *relevant_info,
+        {"role": "user", "content": intro_prompt}
     ]
+    print(('* ' * 10) + f"{world.all_nodes[world.player.subregion_id].node_name}" + (' *' * 10))
 
-    result = call_llm_unstructured(messages)
-    print(result)
+    choice = ""
+    while choice.lower() != "move":
+        result = call_llm_unstructured(messages)
+        print(result)
+        messages.append(
+            {"role": "assistant", "content": result}
+        )
+        choice = input("\nHow do you explore? 'move' to move to another region.\n>>> ")
+        messages.append(
+            {"role": "user", "content": f"The player said: {choice}"}
+        )
+
+    print(('* ' * 10) + f"left {world.all_nodes[world.player.subregion_id].node_name}" + (' *' * 10))
+    return world
+
+def help_player_move(world: World) -> World:
+    '''the player wants to move. find out where, and move them!'''
+
+    selection = None
+    while selection is None:
+        choice = input(f"Would you like to move to another subregion in {world.all_nodes[world.player.region_id].node_name}, or would you like to change regions?\n('region' or 'subregion') >>> ")
+        choice = choice.lower()
+        if choice == 'region':
+            selection = 'region'
+        elif choice == 'subregion':
+            selection = 'subregion'
+        else:
+            print("Sorry, that's not a valid choice! ")
+    
+    if selection == 'subregion':
+        world = place_player_subregion(world)
+    elif selection == 'region':
+        world = place_player_region(world)
+        world = generate_cities(world)
+        world = place_player_subregion(world)
+    
     return world
 
 # -------- Main Runtime -------------
@@ -318,8 +361,12 @@ def main(story_prompt: str, verbose: bool, load_level: int, load_file: str):
     if load_level >= 1 and world_save is not None:
         for key in world_save.regions:
             world.regions.append(key)
-            world.all_nodes[key] = world_save.all_nodes[key]
-            world.all_nodes[key].children = []
+            world.all_nodes[key] = world_save.all_nodes[key].model_copy()
+            if load_level >= 2:
+                for child_key in world.all_nodes[key].children:
+                    world.all_nodes[child_key] = world_save.all_nodes[child_key].model_copy()
+            else:
+                world.all_nodes[key].children = []
 
     else:
         print("Generating regions...")
@@ -332,9 +379,20 @@ def main(story_prompt: str, verbose: bool, load_level: int, load_file: str):
         print(f"Saved world into file: {load_file}.")
     
     world = place_player_region(world)
+
     world = generate_cities(world)
+
     world = place_player_subregion(world)
-    world = explore_subregion(world)
+
+    while True:
+        if load_level >= 0:
+            #save the world
+            with open(load_file, 'wb') as file:
+                pickle.dump(world, file)
+            print(f"Saved world into file: {load_file}.")
+        world = explore_subregion(world)
+        world = help_player_move(world)
+
 
 
 if __name__ == "__main__":
