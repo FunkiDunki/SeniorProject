@@ -1,3 +1,6 @@
+
+mapwalker/saves/*
+
 # ignore the python venv folder
 venv/*
 
