@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from PIL import Image, ImageTk
+import os
 
 class TextAdventureGameGUI:
     def __init__(self, root):
@@ -20,6 +21,18 @@ class TextAdventureGameGUI:
         self.canvas = tk.Canvas(main_frame, width=800, height=500)
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.bg_photo)
+
+        # Add the Notes Button on the Canvas
+        self.notes_button = tk.Button(
+            self.canvas,
+            text="Notes",
+            font=("Courier", 14),
+            command=self.open_notes,
+            bg="white",
+            fg="black"
+        )
+        # Position the button on the canvas 
+        self.notes_button_window = self.canvas.create_window(100, 20, anchor=tk.NE, window=self.notes_button)
 
         # Frame for Text Box and Input Field
         bottom_frame = tk.Frame(main_frame, bg="black")
@@ -62,6 +75,44 @@ class TextAdventureGameGUI:
 
         self.text_box.see(tk.END)  # Scroll to the latest text
 
+    def open_notes(self):
+        """Open a new window for writing notes."""
+        notes_window = tk.Toplevel(self.root)
+        notes_window.title("Notes")
+        notes_window.geometry("600x400")
+
+        # Frame for Save button
+        button_frame = tk.Frame(notes_window)
+        button_frame.pack(fill="x", padx=10, pady=5)
+
+        # Frame to organize the layout
+        notes_frame = tk.Frame(notes_window)
+        notes_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # ScrolledText for the notebook
+        notes_text = ScrolledText(notes_frame, wrap=tk.WORD, font=("Courier", 12), bg="white", fg="black")
+        notes_text.pack(fill="both", expand=True)
+
+        # Add a Save button
+        save_button = tk.Button(button_frame, text="Save Notes", font=("Courier", 12), command=lambda: self.save_notes(notes_text))
+        save_button.pack(side="right")
+
+        # Load existing notes if available
+        if os.path.exists("notes.txt"):
+            with open("notes.txt", "r") as file:
+                notes_content = file.read()
+                notes_text.insert(tk.END, notes_content)
+
+
+
+    def save_notes(self, notes_widget):
+        """Save notes to a file."""
+        notes_content = notes_widget.get("1.0", tk.END).strip()
+        with open("notes.txt", "w") as file:
+            file.write(notes_content)
+        self.text_box.insert(tk.END, "\nNotes saved successfully!\n")
+        self.text_box.see(tk.END)
+
     def get_user_input(self, event):
         action = self.input_field.get().strip()
         self.input_field.delete(0, tk.END)
@@ -71,12 +122,13 @@ class TextAdventureGameGUI:
         formated_text = f"\n{text}\n"
         self.text_box.insert(tk.END, formated_text)
 
+
 # start frontend function
 def start_frontend():
     root = tk.Tk()
     app = TextAdventureGameGUI(root)
     root.mainloop()
 
-
+start_frontend()
 
 
